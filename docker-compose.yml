@@ -1,0 +1,50 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: toyota-ai-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ENV=production
+      - CORS_ORIGINS=["http://localhost:3000","http://frontend:3000"]
+      # Add your API keys here or use .env file
+      # - NEMOTRON_API_KEY=${NEMOTRON_API_KEY}
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      # Mount data directory for easy updates
+      - ./backend/app/data:/app/app/data:ro
+    networks:
+      - toyota-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: toyota-ai-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_API_URL=http://backend:8000
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - toyota-network
+
+networks:
+  toyota-network:
+    driver: bridge
+
