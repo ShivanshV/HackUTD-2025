@@ -1,1 +1,968 @@
-[]
+[
+  {
+    "id": "rav4-le-2022",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "LE",
+    "year": 2022,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 26975,
+        "msrp_range": [
+          26975,
+          36975
+        ],
+        "est_lease_monthly": 320,
+        "est_loan_monthly": 436
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 27,
+        "mpg_hwy": 34,
+        "mpg_combined": 30,
+        "est_range_miles": 420
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1032,
+    "annual_insurance": 579,
+    "annual_maintenance": 510,
+    "description": "RAV4 2022 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2022.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2022.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 4,
+        "price": 27675
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 3,
+        "price": 27375
+      }
+    ],
+    "condition": "New"
+  },
+  {
+    "id": "rav4-le-2021",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "LE",
+    "year": 2021,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 27225,
+        "msrp_range": [
+          27225,
+          37225
+        ],
+        "est_lease_monthly": 317,
+        "est_loan_monthly": 432
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 27,
+        "mpg_hwy": 34,
+        "mpg_combined": 30,
+        "est_range_miles": 420
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1032,
+    "annual_insurance": 581,
+    "annual_maintenance": 530,
+    "description": "RAV4 2021 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2021.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2021.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 9,
+        "price": 27925
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 2,
+        "price": 27625
+      }
+    ],
+    "condition": "New"
+  },
+  {
+    "id": "rav4-le-2020",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "LE",
+    "year": 2020,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 26650,
+        "msrp_range": [
+          26650,
+          36650
+        ],
+        "est_lease_monthly": 304,
+        "est_loan_monthly": 415
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 27,
+        "mpg_hwy": 35,
+        "mpg_combined": 31,
+        "est_range_miles": 434
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1016,
+    "annual_insurance": 577,
+    "annual_maintenance": 550,
+    "description": "RAV4 2020 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2020.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2020.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 7,
+        "price": 27350
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 6,
+        "price": 27050
+      }
+    ],
+    "condition": "Used"
+  },
+  {
+    "id": "rav4-le-2019",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "LE",
+    "year": 2019,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 26150,
+        "msrp_range": [
+          26150,
+          36150
+        ],
+        "est_lease_monthly": 293,
+        "est_loan_monthly": 400
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 26,
+        "mpg_hwy": 35,
+        "mpg_combined": 30,
+        "est_range_miles": 420
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system"
+        ],
+        "crash_test_score": 0.9
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1032,
+    "annual_insurance": 574,
+    "annual_maintenance": 570,
+    "description": "RAV4 2019 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2019.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2019.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 3,
+        "price": 26850
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 3,
+        "price": 26550
+      }
+    ],
+    "condition": "Used"
+  },
+  {
+    "id": "rav4-le-2018",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "LE",
+    "year": 2018,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 25500,
+        "msrp_range": [
+          25500,
+          35500
+        ],
+        "est_lease_monthly": 280,
+        "est_loan_monthly": 382
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 23,
+        "mpg_hwy": 30,
+        "mpg_combined": 26,
+        "est_range_miles": 364
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system"
+        ],
+        "crash_test_score": 0.9
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1188,
+    "annual_insurance": 570,
+    "annual_maintenance": 590,
+    "description": "RAV4 2018 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2018.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2018.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 4,
+        "price": 26200
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 8,
+        "price": 25900
+      }
+    ],
+    "condition": "Used"
+  },
+  {
+    "id": "rav4-le-2025",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "LE",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 30645,
+        "msrp_range": [
+          30645,
+          40645
+        ],
+        "est_lease_monthly": 384,
+        "est_loan_monthly": 524
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 27,
+        "mpg_hwy": 34,
+        "mpg_combined": 30,
+        "est_range_miles": 420
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1032,
+    "annual_insurance": 604,
+    "annual_maintenance": 450,
+    "description": "RAV4 2025 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 2,
+        "price": 31345
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 1,
+        "price": 31045
+      }
+    ],
+    "condition": "New"
+  },
+  {
+    "id": "rav4-xle-2025",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "XLE",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 33145,
+        "msrp_range": [
+          33145,
+          43145
+        ],
+        "est_lease_monthly": 415,
+        "est_loan_monthly": 566
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 27,
+        "mpg_hwy": 34,
+        "mpg_combined": 30,
+        "est_range_miles": 420
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1032,
+    "annual_insurance": 620,
+    "annual_maintenance": 450,
+    "description": "RAV4 2025 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 4,
+        "price": 33845
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 5,
+        "price": 33545
+      }
+    ],
+    "condition": "New"
+  },
+  {
+    "id": "rav4-hybrid-le-2025",
+    "make": "Toyota",
+    "model": "RAV4 Hybrid",
+    "trim": "LE",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 32850,
+        "msrp_range": [
+          32850,
+          42850
+        ],
+        "est_lease_monthly": 411,
+        "est_loan_monthly": 561
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "AWD",
+        "mpg_city": 41,
+        "mpg_hwy": 38,
+        "mpg_combined": 39,
+        "est_range_miles": 546
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.75
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.9,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.8,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 797,
+    "annual_insurance": 619,
+    "annual_maintenance": 450,
+    "description": "RAV4 Hybrid 2025 offers hybrid efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_hybrid_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 2,
+        "price": 33550
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 1,
+        "price": 33250
+      }
+    ],
+    "condition": "New"
+  },
+  {
+    "id": "rav4-hybrid-xle-2025",
+    "make": "Toyota",
+    "model": "RAV4 Hybrid",
+    "trim": "XLE",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 35350,
+        "msrp_range": [
+          35350,
+          45350
+        ],
+        "est_lease_monthly": 443,
+        "est_loan_monthly": 604
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "AWD",
+        "mpg_city": 41,
+        "mpg_hwy": 38,
+        "mpg_combined": 39,
+        "est_range_miles": 546
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.75
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.9,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.8,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 797,
+    "annual_insurance": 635,
+    "annual_maintenance": 450,
+    "description": "RAV4 Hybrid 2025 offers hybrid efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_hybrid_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 3,
+        "price": 36050
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 35750
+      }
+    ],
+    "condition": "New"
+  },
+  {
+    "id": "rav4-le-2024",
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "LE",
+    "year": 2024,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "compact_suv",
+      "pricing": {
+        "base_msrp": 29575,
+        "msrp_range": [
+          29575,
+          39575
+        ],
+        "est_lease_monthly": 364,
+        "est_loan_monthly": 496
+      },
+      "powertrain": {
+        "fuel_type": "gasoline",
+        "drivetrain": "AWD",
+        "mpg_city": 27,
+        "mpg_hwy": 34,
+        "mpg_combined": 30,
+        "est_range_miles": 420
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 1065,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4600,
+        "width_mm": 1855,
+        "height_mm": 1700,
+        "turning_radius_m": 5.5
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.7
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.6,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.7,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.75,
+      "road_trip_score": 0.9
+    },
+    "cargo_space": "37.6 cu ft",
+    "towing_capacity": "1750 lbs",
+    "annual_fuel_cost": 1032,
+    "annual_insurance": 597,
+    "annual_maintenance": 470,
+    "description": "RAV4 2024 offers gasoline efficiency with 5 seats. Ideal for compact suv buyers.",
+    "best_for": "Versatile drivers",
+    "image_url": "/cars/rav4/rav4-2024.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/rav4_2024.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 7,
+        "price": 30275
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 29975
+      }
+    ],
+    "condition": "New"
+  }
+]
