@@ -5,19 +5,58 @@ import styles from './Header.module.css';
 
 type TabType = 'catalog' | 'smart' | 'compare' | '3d';
 
-export default function Header() {
+interface HeaderProps {
+  activeMode?: 'smart' | 'catalog';
+  onModeChange?: (mode: 'smart' | 'catalog') => void;
+  onNavigateToSearch?: () => void;
+}
+
+export default function Header({ activeMode, onModeChange, onNavigateToSearch }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
   const tabs = [
-    { id: 'catalog' as TabType, label: 'Catalog Search', icon: '▦', path: '/catalog' },
-    { id: 'smart' as TabType, label: 'Smart Search', icon: '◈', path: '/' },
+    { id: 'catalog' as TabType, label: 'Catalog Search', icon: '▦', mode: 'catalog' as const },
+    { id: 'smart' as TabType, label: 'Smart Search', icon: '◈', mode: 'smart' as const },
     { id: 'compare' as TabType, label: 'Compare', icon: '⇄', path: '/compare' },
     { id: '3d' as TabType, label: '3D Model', icon: '⬡', path: '/3d-model' },
   ];
 
-  const handleTabClick = (path: string) => {
-    router.push(path);
+  const handleTabClick = (tab: typeof tabs[number]) => {
+    if ('mode' in tab && tab.mode) {
+      // For Catalog Search and Smart Search
+      if (onModeChange && onNavigateToSearch) {
+        // If we have callbacks (on home page), use them
+        onModeChange(tab.mode);
+        onNavigateToSearch();
+      } else {
+        // If no callbacks (on other pages), navigate to home with query param
+        router.push(`/?mode=${tab.mode}`);
+      }
+    } else if ('path' in tab && tab.path) {
+      // For Compare and 3D Model, navigate to routes
+      router.push(tab.path);
+    }
+  };
+
+  const handleLogoClick = () => {
+    if (onNavigateToSearch) {
+      onNavigateToSearch();
+      if (onModeChange) {
+        onModeChange('smart');
+      }
+    } else {
+      router.push('/');
+    }
+  };
+
+  const isActive = (tab: typeof tabs[number]) => {
+    if ('mode' in tab && tab.mode) {
+      return pathname === '/' && activeMode === tab.mode;
+    } else if ('path' in tab && tab.path) {
+      return pathname === tab.path;
+    }
+    return false;
   };
 
   return (
@@ -45,8 +84,8 @@ export default function Header() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`${styles.navTab} ${pathname === tab.path ? styles.active : ''}`}
-              onClick={() => handleTabClick(tab.path)}
+              className={`${styles.navTab} ${isActive(tab) ? styles.active : ''}`}
+              onClick={() => handleTabClick(tab)}
             >
               <span className={styles.tabIcon}>{tab.icon}</span>
               <span className={styles.tabLabel}>{tab.label}</span>

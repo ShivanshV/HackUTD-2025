@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import SearchInterface from '@/components/search/SearchInterface'
 import ChatInterface from '@/components/chat/ChatInterface'
 import CatalogResults from '@/components/catalog/CatalogResults'
@@ -17,9 +18,19 @@ interface CatalogFilters {
 }
 
 export default function Home() {
+  const searchParams = useSearchParams()
   const [currentView, setCurrentView] = useState<ViewType>('search')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchMode, setSearchMode] = useState<'smart' | 'catalog'>('smart')
+  
+  // Read mode from URL query parameter
+  useEffect(() => {
+    const mode = searchParams.get('mode')
+    if (mode === 'catalog' || mode === 'smart') {
+      setSearchMode(mode)
+      setCurrentView('search')
+    }
+  }, [searchParams])
   const [catalogFilters, setCatalogFilters] = useState<CatalogFilters>({
     status: 'New',
     model: 'All Toyota Models',
