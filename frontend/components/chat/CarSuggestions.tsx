@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Vehicle } from '@/lib/types/chat';
-import { getAllVehicles, getAiSuggestedVehicles } from '@/lib/api/vehicles';
+import { getSuggestedVehicles } from '@/lib/api/vehicles';
 import styles from './CarSuggestions.module.css';
 
 interface CarSuggestionsProps {
@@ -16,7 +16,20 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch vehicles - check AiSuggested.json when recommendations exist, otherwise load all
+  // Fetch suggested vehicles from suggested.json
+  const fetchSuggestedVehicles = useCallback(async () => {
+    try {
+      const vehicles = await getSuggestedVehicles();
+      setSuggestedCars(vehicles);
+    } catch (err) {
+      console.error('Failed to load suggested vehicles:', err);
+      setSuggestedCars([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch suggested vehicles on mount and when cars prop changes
   useEffect(() => {
     const fetchVehicles = async () => {
       // If cars prop is provided, use it
@@ -26,77 +39,30 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
       }
 
       setLoading(true);
-      
-      try {
-        // If we have recommendedCarIds, ALWAYS try to load from AiSuggested.json first
-        if (recommendedCarIds && recommendedCarIds.length > 0) {
-          console.log('🔍 Checking AiSuggested.json for', recommendedCarIds.length, 'recommended cars');
-          const aiSuggested = await getAiSuggestedVehicles();
-          if (aiSuggested && aiSuggested.length > 0) {
-            console.log('✅ Loaded', aiSuggested.length, 'vehicles from AiSuggested.json');
-            setAllCars(aiSuggested);
-            setLoading(false);
-            return;
-          } else {
-            console.log('⚠️ AiSuggested.json is empty, will filter from all vehicles');
-            // Continue to load all vehicles, then filter below
-          }
-        }
-        
-        // Load all vehicles (either no recommendations, or AiSuggested.json was empty)
-        console.log('📦 Loading all vehicles from catalog...');
-        const allVehicles: Vehicle[] = [];
-        let currentSkip = 0;
-        const batchSize = 100;
-        
-        while (true) {
-          const batch = await getAllVehicles(currentSkip, batchSize);
-          if (batch.length === 0) break;
-          
-          allVehicles.push(...batch);
-          currentSkip += batchSize;
-          
-          if (batch.length < batchSize) break;
-        }
-        
-        console.log('✅ Loaded', allVehicles.length, 'total vehicles');
-        setAllCars(allVehicles);
-      } catch (err) {
-        console.error('❌ Failed to load vehicles:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchVehicles();
-  }, [cars, recommendedCarIds]); // Re-fetch when recommendedCarIds changes
-
-  // Display logic:
-  // 1. If we loaded from AiSuggested.json, allCars already contains only recommended cars
-  // 2. If we have recommendedCarIds but loaded all cars, filter to recommended IDs
-  // 3. Otherwise, show all cars
-  // 4. Apply search filter on top
-  
-  let displayCars = allCars;
-  
-  // If AI has recommended specific cars, ensure we only show those
-  if (recommendedCarIds && recommendedCarIds.length > 0) {
-    // Check if we already loaded only recommended cars from AiSuggested.json
-    const allCarsAreRecommended = allCars.length > 0 && 
-      allCars.every(car => recommendedCarIds.includes(car.id));
-    
-    if (!allCarsAreRecommended && allCars.length > recommendedCarIds.length) {
-      // We have all cars loaded, so filter to recommended IDs
-      displayCars = allCars.filter((car) => recommendedCarIds.includes(car.id));
-      console.log(`🎯 Filtered to ${displayCars.length} recommended vehicles (from ${allCars.length} total)`);
-    } else if (allCarsAreRecommended) {
-      // Already showing only recommended cars from AiSuggested.json
-      console.log(`✅ Displaying ${displayCars.length} recommended vehicles from AiSuggested.json`);
+      fetchSuggestedVehicles();
+    } else {
+      // If cars are provided via prop (from chat response), use those
+      setSuggestedCars(cars);
+      setLoading(false);
     }
-  }
-  
-  // Apply search filter on top
-  if (searchQuery.trim()) {
+  }, [cars, fetchSuggestedVehicles]);
+
+  // Poll for updates to suggested.json every 2 seconds
+  useEffect(() => {
+    if (!cars) {
+      const interval = setInterval(() => {
+        fetchSuggestedVehicles();
+      }, 2000); // Poll every 2 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [cars, fetchSuggestedVehicles]);
+
+  // Filter cars based on search query
+  const allCars = cars || suggestedCars;
+  const displayCars = allCars.filter((car) => {
+    if (!searchQuery.trim()) return true;
+    
     const searchLower = searchQuery.toLowerCase();
     const beforeSearch = displayCars.length;
     displayCars = displayCars.filter((car) => {
@@ -132,18 +98,13 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
         <div className={styles.headerTop}>
           <div className={styles.headerText}>
             <h3 className={styles.title}>
-              {recommendedCarIds && recommendedCarIds.length > 0 ? (
-                <>✨ AI Recommended Vehicles</>
-              ) : (
-                <>All Available Vehicles</>
-              )}
+              Recommended Vehicles
             </h3>
             <p className={styles.subtitle}>
-              {recommendedCarIds && recommendedCarIds.length > 0 ? (
-                `${displayCars.length} ${displayCars.length === 1 ? 'vehicle' : 'vehicles'} match your needs`
-              ) : (
-                `${displayCars.length} ${displayCars.length === 1 ? 'vehicle' : 'vehicles'} in our catalog`
-              )}
+              {displayCars.length === 0
+                ? 'No recommendations yet. Start a conversation to get personalized recommendations!'
+                : `${displayCars.length} ${displayCars.length === 1 ? 'recommendation' : 'recommendations'} for you`
+              }
             </p>
           </div>
           <div className={styles.searchContainer}>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { ChatMessage, Vehicle } from '@/lib/types/chat'
 import { sendChatMessage } from '@/lib/api/chat'
 import { getVehicleById } from '@/lib/api/vehicles'
@@ -12,26 +12,20 @@ import styles from './ChatInterface.module.css'
 
 interface ChatInterfaceProps {
   onNewSearch?: () => void;
-  initialMessage?: string;
+  initialQuery?: string;
 }
 
-export default function ChatInterface({ onNewSearch, initialMessage }: ChatInterfaceProps = {}) {
+export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfaceProps = {}) {
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
   const [selectedCar, setSelectedCar] = useState<Vehicle | null>(null);
   const [loadingCarDetails, setLoadingCarDetails] = useState(false);
-  const [recommendedCarIds, setRecommendedCarIds] = useState<string[]>([]);
-  const [hasSentInitialMessage, setHasSentInitialMessage] = useState(false);
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    {
-      role: 'agent',
-      content: "Hi! I'm your Toyota AI assistant. Tell me about your daily commute, family size, or what features matter most to you!",
-      timestamp: new Date(),
-    },
-  ])
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
+  const [recommendedCars, setRecommendedCars] = useState<Vehicle[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [zipCode, setZipCode] = useState('75080')
+  const [hasInitialized, setHasInitialized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const chatHistoryRef = useRef<ChatMessage[]>(chatHistory)
+  const chatHistoryRef = useRef<ChatMessage[]>([])
   
   // Keep ref in sync with state
   useEffect(() => {
@@ -123,42 +117,34 @@ export default function ChatInterface({ onNewSearch, initialMessage }: ChatInter
     }
   }, [selectedCarId]);
 
-  const handleSendMessage = async (message: string) => {
-    if (!message.trim() || isLoading) {
-      console.log('⚠️ Cannot send message:', { message: message.trim(), isLoading });
-      return;
-    }
+  const handleSendMessage = useCallback(async (message: string) => {
+    if (!message.trim() || isLoading) return
 
-    console.log('📤 Sending message:', message);
-
-    // Add user message to chat history IMMEDIATELY
+    // Add user message to chat history immediately
     const userMessage: ChatMessage = {
       role: 'user',
       content: message.trim(),
       timestamp: new Date(),
     }
 
-    const updatedHistory = [...chatHistory, userMessage]
-    console.log('💬 Updated chat history:', updatedHistory.length, 'messages');
+    // Get the latest chat history from ref (always up-to-date)
+    const currentHistory = chatHistoryRef.current
+    const updatedHistory = [...currentHistory, userMessage]
+    
+    // Update state immediately so user message appears in UI
     setChatHistory(updatedHistory)
     setIsLoading(true)
 
     try {
-      // Send entire chat history to backend
-      console.log('🌐 Calling API with', updatedHistory.length, 'messages');
+      // Send entire chat history to backend (including the new user message)
+      // This ensures the agent sees all previous messages plus the new one
+      console.log('Sending chat message with history length:', updatedHistory.length)
       const response = await sendChatMessage(updatedHistory)
-      console.log('✅ Received response:', {
-        contentLength: response.content?.length,
-        recommendedCount: response.recommended_car_ids?.length || 0,
-        scoringMethod: response.scoring_method
-      });
 
-      // Extract recommended car IDs from the response
-      if (response.recommended_car_ids && response.recommended_car_ids.length > 0) {
-        console.log('🚗 Setting recommended cars:', response.recommended_car_ids);
-        setRecommendedCarIds(response.recommended_car_ids);
-      } else {
-        console.log('ℹ️ No recommendations in response (AI may be asking questions)');
+      // Validate response
+      if (!response || !response.content) {
+        console.error('Invalid response from backend:', response)
+        throw new Error('Invalid response from backend')
       }
 
       // Add agent response to chat history
@@ -168,22 +154,48 @@ export default function ChatInterface({ onNewSearch, initialMessage }: ChatInter
         timestamp: new Date(),
       }
 
-      const finalHistory = [...updatedHistory, agentMessage];
-      console.log('💬 Final chat history:', finalHistory.length, 'messages');
-      setChatHistory(finalHistory);
+      setChatHistory(prevHistory => [...prevHistory, agentMessage])
+
+      // Handle recommended car IDs
+      if (response.recommended_car_ids && response.recommended_car_ids.length > 0) {
+        console.log('Received recommended car IDs:', response.recommended_car_ids)
+        // Fetch car details for recommended IDs
+        const carPromises = response.recommended_car_ids.map(id => 
+          getVehicleById(id).catch(err => {
+            console.error(`Failed to fetch car ${id}:`, err)
+            return null
+          })
+        )
+        const cars = await Promise.all(carPromises)
+        const validCars = cars.filter((car): car is Vehicle => car !== null)
+        console.log('Fetched valid cars:', validCars.length)
+        setRecommendedCars(validCars)
+      } else {
+        console.log('No recommended car IDs in response')
+        // Clear recommendations if none provided
+        setRecommendedCars([])
+      }
     } catch (error) {
-      console.error('❌ Chat error:', error);
-      // Add error message
+      console.error('Error sending message:', error)
+      // Add error message with more details
       const errorMessage: ChatMessage = {
         role: 'agent',
-        content: "I'm sorry, I'm having trouble connecting right now. Please try again.",
+        content: `I'm sorry, I'm having trouble connecting right now. ${error instanceof Error ? error.message : 'Please try again.'}`,
         timestamp: new Date(),
       }
-      setChatHistory([...updatedHistory, errorMessage])
+      setChatHistory(prevHistory => [...prevHistory, errorMessage])
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [isLoading])
+
+  // Send initial query when component mounts
+  useEffect(() => {
+    if (initialQuery && !hasInitialized) {
+      setHasInitialized(true)
+      handleSendMessage(initialQuery)
+    }
+  }, [initialQuery, hasInitialized, handleSendMessage])
 
   const quickSuggestions = [
     'Electric cars under $50k',
@@ -290,8 +302,8 @@ export default function ChatInterface({ onNewSearch, initialMessage }: ChatInter
       {/* Suggestions Sidebar - 40% */}
       <div className={styles.suggestionsSection}>
         <CarSuggestions 
+          cars={recommendedCars.length > 0 ? recommendedCars : undefined}
           onViewDetails={(carId) => setSelectedCarId(carId)} 
-          recommendedCarIds={recommendedCarIds}
         />
       </div>
     </div>

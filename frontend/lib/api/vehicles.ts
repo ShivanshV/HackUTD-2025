@@ -80,14 +80,14 @@ export async function getVehicleStats(): Promise<VehicleStats> {
   }
 }
 
-// Get AI suggested vehicles from AiSuggested.json
-export async function getAiSuggestedVehicles(): Promise<Vehicle[]> {
+// Get suggested vehicles from suggested.json
+export async function getSuggestedVehicles(): Promise<Vehicle[]> {
   try {
-    const response = await apiClient.get<Vehicle[]>('/api/vehicles/ai-suggested');
+    const response = await apiClient.get<Vehicle[]>('/api/vehicles/suggested');
     return response.data;
   } catch (error) {
-    console.error('Error fetching AI suggested vehicles:', error);
-    return [];
+    console.error('Error fetching suggested vehicles:', error);
+    throw new Error('Failed to fetch suggested vehicles');
   }
 }
 

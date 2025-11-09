@@ -74,7 +74,7 @@ export default function Home() {
         {currentView === 'chat' && (
           <ChatInterface 
             onNewSearch={handleNavigateToSearch}
-            initialMessage={searchQuery}
+            initialQuery={searchQuery}
           />
         )}
         {currentView === 'catalog-results' && (
