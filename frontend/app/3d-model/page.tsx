@@ -124,7 +124,15 @@ export default function ThreeDModelPage() {
                 onClick={() => setSelectedVehicle(vehicle)}
               >
                 <div className={styles.modelPreview}>
-                  <div className={styles.previewIcon}>🎨</div>
+                  {vehicle.image_url ? (
+                    <img 
+                      src={vehicle.image_url} 
+                      alt={`${vehicle.year} ${vehicle.model}`}
+                      className={styles.modelImage}
+                    />
+                  ) : (
+                    <div className={styles.previewIcon}>🎨</div>
+                  )}
                   <div className={styles.badge3d}>3D MODEL</div>
                 </div>
                 <div className={styles.modelInfo}>
