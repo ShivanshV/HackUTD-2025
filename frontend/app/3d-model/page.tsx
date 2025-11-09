@@ -134,6 +134,9 @@ export default function ThreeDModelPage() {
                     <div className={styles.previewIcon}>🎨</div>
                   )}
                   <div className={styles.badge3d}>3D MODEL</div>
+                  {vehicle.condition && (
+                    <div className={styles.conditionBadge}>{vehicle.condition}</div>
+                  )}
                 </div>
                 <div className={styles.modelInfo}>
                   <h3 className={styles.modelName}>

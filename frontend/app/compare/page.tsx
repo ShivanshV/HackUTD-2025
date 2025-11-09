@@ -458,6 +458,9 @@ export default function ComparePage() {
                     ) : (
                       <div className={styles.imagePlaceholder}>🚗</div>
                     )}
+                    {vehicle.condition && (
+                      <div className={styles.conditionBadge}>{vehicle.condition}</div>
+                    )}
                   </div>
                   <div className={styles.vehicleInfo}>
                     <h4 className={styles.vehicleName}>

@@ -130,7 +130,12 @@ export default function ComparisonReportPage() {
                 <h3 className={styles.vehicleName}>
                   {vehicle.year} {vehicle.make} {vehicle.model}
                 </h3>
-                <p className={styles.vehicleTrim}>{vehicle.trim}</p>
+                <div className={styles.vehicleMetaRow}>
+                  <p className={styles.vehicleTrim}>{vehicle.trim}</p>
+                  {vehicle.condition && (
+                    <span className={styles.conditionBadge}>{vehicle.condition}</span>
+                  )}
+                </div>
                 <div className={styles.quickStats}>
                   <div className={styles.quickStat}>
                     <span className={styles.quickStatLabel}>MSRP</span>

@@ -21,6 +21,7 @@ interface Car {
   model: string;
   trim: string;
   year: number;
+  condition: string;
   specs: {
     body_style: string;
     pricing: {
@@ -62,7 +63,7 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
         }
         
         // Add limit to get more results
-        params.append('limit', '100');
+        params.append('limit', '300');
         
         // Fetch from backend API using search endpoint
         const response = await fetch(`http://localhost:8000/api/vehicles/search?${params.toString()}`);
@@ -71,7 +72,15 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
           throw new Error('Failed to fetch vehicles');
         }
         
-        const data = await response.json();
+        let data = await response.json();
+        
+        // Filter by condition based on status filter
+        if (filters.status === 'Used') {
+          data = data.filter((car: Car) => car.condition === 'Used - Like New');
+        } else if (filters.status === 'New') {
+          data = data.filter((car: Car) => car.condition === 'New');
+        }
+        
         setCars(data);
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -184,6 +193,9 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
                   </div>
                 )}
                 <div className={styles.bestForBadge}>{car.best_for}</div>
+                {car.condition && (
+                  <div className={styles.conditionBadge}>{car.condition}</div>
+                )}
               </div>
               
               <div className={styles.carContent}>

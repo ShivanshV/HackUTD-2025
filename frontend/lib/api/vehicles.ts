@@ -80,3 +80,14 @@ export async function getVehicleStats(): Promise<VehicleStats> {
   }
 }
 
+// Get AI suggested vehicles from AiSuggested.json
+export async function getAiSuggestedVehicles(): Promise<Vehicle[]> {
+  try {
+    const response = await apiClient.get<Vehicle[]>('/api/vehicles/ai-suggested');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching AI suggested vehicles:', error);
+    return [];
+  }
+}
+

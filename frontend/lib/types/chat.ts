@@ -13,6 +13,8 @@ export interface ChatRequest {
 export interface ChatResponse {
   role: 'agent';
   content: string;
+  recommended_car_ids?: string[];
+  scoring_method?: string;
 }
 
 // Vehicle types matching the backend data structure
@@ -22,6 +24,7 @@ export interface Vehicle {
   model: string;
   trim: string;
   year: number;
+  condition: string;
   specs: VehicleSpecs;
   derived_scores: DerivedScores;
   cargo_space: string;

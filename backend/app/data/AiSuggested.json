@@ -1,0 +1,984 @@
+[
+  {
+    "id": "camry-hybrid-le-2018",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "LE",
+    "year": 2018,
+    "condition": "Used",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 27800.0,
+        "msrp_range": [
+          27800.0,
+          37800.0
+        ],
+        "est_lease_monthly": 305.0,
+        "est_loan_monthly": 417.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.0",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system"
+        ],
+        "crash_test_score": 0.9
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 585.0,
+    "annual_maintenance": 590.0,
+    "description": "Camry Hybrid 2018 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2018.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 3,
+        "price": 28500.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 28200.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2018.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-se-2018",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "SE",
+    "year": 2018,
+    "condition": "Used",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 30300.0,
+        "msrp_range": [
+          30300.0,
+          40300.0
+        ],
+        "est_lease_monthly": 333.0,
+        "est_loan_monthly": 454.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.0",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system"
+        ],
+        "crash_test_score": 0.9
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 602.0,
+    "annual_maintenance": 590.0,
+    "description": "Camry Hybrid 2018 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2018.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 10,
+        "price": 31000.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 30700.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2018.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-le-2019",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "LE",
+    "year": 2019,
+    "condition": "Used",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 28400.0,
+        "msrp_range": [
+          28400.0,
+          38400.0
+        ],
+        "est_lease_monthly": 318.0,
+        "est_loan_monthly": 434.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.0",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system"
+        ],
+        "crash_test_score": 0.9
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 589.0,
+    "annual_maintenance": 570.0,
+    "description": "Camry Hybrid 2019 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2019.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 6,
+        "price": 29100.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 3,
+        "price": 28800.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2019.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-se-2019",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "SE",
+    "year": 2019,
+    "condition": "Used",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 30900.0,
+        "msrp_range": [
+          30900.0,
+          40900.0
+        ],
+        "est_lease_monthly": 346.0,
+        "est_loan_monthly": 472.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.0",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system"
+        ],
+        "crash_test_score": 0.9
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 606.0,
+    "annual_maintenance": 570.0,
+    "description": "Camry Hybrid 2019 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2019.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 4,
+        "price": 31600.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 8,
+        "price": 31300.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2019.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-le-2020",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "LE",
+    "year": 2020,
+    "condition": "Used",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 28430.0,
+        "msrp_range": [
+          28430.0,
+          38430.0
+        ],
+        "est_lease_monthly": 325.0,
+        "est_loan_monthly": 443.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 589.0,
+    "annual_maintenance": 550.0,
+    "description": "Camry Hybrid 2020 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2020.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 7,
+        "price": 29130.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 28830.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2020.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-se-2020",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "SE",
+    "year": 2020,
+    "condition": "Used",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 30930.0,
+        "msrp_range": [
+          30930.0,
+          40930.0
+        ],
+        "est_lease_monthly": 353.0,
+        "est_loan_monthly": 482.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 606.0,
+    "annual_maintenance": 550.0,
+    "description": "Camry Hybrid 2020 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2020.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 6,
+        "price": 31630.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 6,
+        "price": 31330.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2020.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-le-2021",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "LE",
+    "year": 2021,
+    "condition": "New",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 28855.0,
+        "msrp_range": [
+          28855.0,
+          38855.0
+        ],
+        "est_lease_monthly": 336.0,
+        "est_loan_monthly": 458.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 592.0,
+    "annual_maintenance": 530.0,
+    "description": "Camry Hybrid 2021 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2021.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 4,
+        "price": 29555.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 8,
+        "price": 29255.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2021.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-se-2021",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "SE",
+    "year": 2021,
+    "condition": "New",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 31355.0,
+        "msrp_range": [
+          31355.0,
+          41355.0
+        ],
+        "est_lease_monthly": 365.0,
+        "est_loan_monthly": 498.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 609.0,
+    "annual_maintenance": 530.0,
+    "description": "Camry Hybrid 2021 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2021.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 1,
+        "price": 32055.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 31755.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2021.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-le-2022",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "LE",
+    "year": 2022,
+    "condition": "New",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 28715.0,
+        "msrp_range": [
+          28715.0,
+          38715.0
+        ],
+        "est_lease_monthly": 341.0,
+        "est_loan_monthly": 465.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 591.0,
+    "annual_maintenance": 510.0,
+    "description": "Camry Hybrid 2022 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2022.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 5,
+        "price": 29415.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 29115.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2022.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  },
+  {
+    "id": "camry-hybrid-se-2022",
+    "make": "Toyota",
+    "model": "Camry Hybrid",
+    "trim": "SE",
+    "year": 2022,
+    "condition": "New",
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "mid_size_sedan",
+      "pricing": {
+        "base_msrp": 31215.0,
+        "msrp_range": [
+          31215.0,
+          41215.0
+        ],
+        "est_lease_monthly": 370.0,
+        "est_loan_monthly": 505.0
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 51,
+        "mpg_hwy": 53,
+        "mpg_combined": 52,
+        "est_range_miles": 728
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 428,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4915,
+        "width_mm": 1840,
+        "height_mm": 1445,
+        "turning_radius_m": 5.7
+      },
+      "comfort": {
+        "ride_comfort_score": 0.9,
+        "noise_level_score": 0.9
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.4,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "2.5+",
+        "airbags": 10,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.9,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "15.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 605.0,
+    "annual_insurance": 608.0,
+    "annual_maintenance": 510.0,
+    "description": "Camry Hybrid 2022 offers hybrid efficiency with 5 seats. Ideal for mid size sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/camry/camry-2022.jpg",
+    "video_id": "demoVideoId",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 3,
+        "price": 31915.0
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 8,
+        "price": 31615.0
+      }
+    ],
+    "_3d_model_url": "/models/camry_hybrid_2022.glb",
+    "Reason": "Seats 5 passengers (fits your 2); Excellent fuel efficiency (52 MPG) for your 60-mile commute. Saves ~577 gallons per year compared to lower MPG vehicles.",
+    "_score": 35.0
+  }
+]

@@ -2,64 +2,109 @@
 
 import React, { useEffect, useState } from 'react';
 import { Vehicle } from '@/lib/types/chat';
-import { getAllVehicles } from '@/lib/api/vehicles';
+import { getAllVehicles, getAiSuggestedVehicles } from '@/lib/api/vehicles';
 import styles from './CarSuggestions.module.css';
 
 interface CarSuggestionsProps {
   cars?: Vehicle[];
   onViewDetails?: (carId: string) => void;
+  recommendedCarIds?: string[];
 }
 
-const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails }) => {
-  const [suggestedCars, setSuggestedCars] = useState<Vehicle[]>([]);
+const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, recommendedCarIds = [] }) => {
+  const [allCars, setAllCars] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch all vehicles in batches
+  // Fetch vehicles - check AiSuggested.json when recommendations exist, otherwise load all
   useEffect(() => {
-    if (!cars) {
+    const fetchVehicles = async () => {
+      // If cars prop is provided, use it
+      if (cars) {
+        setAllCars(cars);
+        return;
+      }
+
       setLoading(true);
       
-      // Fetch all vehicles by loading them in batches
-      const fetchAllVehicles = async () => {
+      try {
+        // If we have recommendedCarIds, ALWAYS try to load from AiSuggested.json first
+        if (recommendedCarIds && recommendedCarIds.length > 0) {
+          console.log('🔍 Checking AiSuggested.json for', recommendedCarIds.length, 'recommended cars');
+          const aiSuggested = await getAiSuggestedVehicles();
+          if (aiSuggested && aiSuggested.length > 0) {
+            console.log('✅ Loaded', aiSuggested.length, 'vehicles from AiSuggested.json');
+            setAllCars(aiSuggested);
+            setLoading(false);
+            return;
+          } else {
+            console.log('⚠️ AiSuggested.json is empty, will filter from all vehicles');
+            // Continue to load all vehicles, then filter below
+          }
+        }
+        
+        // Load all vehicles (either no recommendations, or AiSuggested.json was empty)
+        console.log('📦 Loading all vehicles from catalog...');
         const allVehicles: Vehicle[] = [];
         let currentSkip = 0;
         const batchSize = 100;
         
-        try {
-          while (true) {
-            const batch = await getAllVehicles(currentSkip, batchSize);
-            if (batch.length === 0) break;
-            
-            allVehicles.push(...batch);
-            currentSkip += batchSize;
-            
-            // If we got less than the batch size, we've reached the end
-            if (batch.length < batchSize) break;
-          }
+        while (true) {
+          const batch = await getAllVehicles(currentSkip, batchSize);
+          if (batch.length === 0) break;
           
-          setSuggestedCars(allVehicles);
-        } catch (err) {
-          console.error('Failed to load vehicles:', err);
-        } finally {
-          setLoading(false);
+          allVehicles.push(...batch);
+          currentSkip += batchSize;
+          
+          if (batch.length < batchSize) break;
         }
-      };
-      
-      fetchAllVehicles();
-    }
-  }, [cars]);
+        
+        console.log('✅ Loaded', allVehicles.length, 'total vehicles');
+        setAllCars(allVehicles);
+      } catch (err) {
+        console.error('❌ Failed to load vehicles:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchVehicles();
+  }, [cars, recommendedCarIds]); // Re-fetch when recommendedCarIds changes
 
-  // Filter cars based on search query
-  const allCars = cars || suggestedCars;
-  const displayCars = allCars.filter((car) => {
-    if (!searchQuery.trim()) return true;
+  // Display logic:
+  // 1. If we loaded from AiSuggested.json, allCars already contains only recommended cars
+  // 2. If we have recommendedCarIds but loaded all cars, filter to recommended IDs
+  // 3. Otherwise, show all cars
+  // 4. Apply search filter on top
+  
+  let displayCars = allCars;
+  
+  // If AI has recommended specific cars, ensure we only show those
+  if (recommendedCarIds && recommendedCarIds.length > 0) {
+    // Check if we already loaded only recommended cars from AiSuggested.json
+    const allCarsAreRecommended = allCars.length > 0 && 
+      allCars.every(car => recommendedCarIds.includes(car.id));
     
+    if (!allCarsAreRecommended && allCars.length > recommendedCarIds.length) {
+      // We have all cars loaded, so filter to recommended IDs
+      displayCars = allCars.filter((car) => recommendedCarIds.includes(car.id));
+      console.log(`🎯 Filtered to ${displayCars.length} recommended vehicles (from ${allCars.length} total)`);
+    } else if (allCarsAreRecommended) {
+      // Already showing only recommended cars from AiSuggested.json
+      console.log(`✅ Displaying ${displayCars.length} recommended vehicles from AiSuggested.json`);
+    }
+  }
+  
+  // Apply search filter on top
+  if (searchQuery.trim()) {
     const searchLower = searchQuery.toLowerCase();
-    const carTitle = `${car.year} ${car.make} ${car.model} ${car.trim}`.toLowerCase();
-    
-    return carTitle.includes(searchLower);
-  });
+    const beforeSearch = displayCars.length;
+    displayCars = displayCars.filter((car) => {
+      const carTitle = `${car.year} ${car.make} ${car.model} ${car.trim}`.toLowerCase();
+      return carTitle.includes(searchLower);
+    });
+    console.log(`🔍 Search "${searchQuery}" filtered to ${displayCars.length} vehicles (from ${beforeSearch})`);
+  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -69,11 +114,6 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails }) 
       maximumFractionDigits: 0,
     }).format(price);
   };
-
-  // Debug logging
-  useEffect(() => {
-    console.log('CarSuggestions - displayCars:', displayCars.length, displayCars.slice(0, 2));
-  }, [displayCars]);
 
   if (loading) {
     return (
@@ -91,9 +131,19 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails }) 
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <div className={styles.headerText}>
-            <h3 className={styles.title}>All Available Vehicles</h3>
+            <h3 className={styles.title}>
+              {recommendedCarIds && recommendedCarIds.length > 0 ? (
+                <>✨ AI Recommended Vehicles</>
+              ) : (
+                <>All Available Vehicles</>
+              )}
+            </h3>
             <p className={styles.subtitle}>
-              {displayCars.length} {displayCars.length === allCars.length ? 'Toyota vehicles' : `of ${allCars.length} vehicles`} in our catalog
+              {recommendedCarIds && recommendedCarIds.length > 0 ? (
+                `${displayCars.length} ${displayCars.length === 1 ? 'vehicle' : 'vehicles'} match your needs`
+              ) : (
+                `${displayCars.length} ${displayCars.length === 1 ? 'vehicle' : 'vehicles'} in our catalog`
+              )}
             </p>
           </div>
           <div className={styles.searchContainer}>
@@ -129,6 +179,11 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails }) 
                 ) : (
                   <div className={styles.imagePlaceholder}>
                     🚗
+                  </div>
+                )}
+                {car.condition && (
+                  <div className={styles.conditionBadge}>
+                    {car.condition}
                   </div>
                 )}
               </div>

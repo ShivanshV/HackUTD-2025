@@ -87,6 +87,7 @@ class Vehicle(BaseModel):
     model: str
     trim: str
     year: int
+    condition: str
     specs: VehicleSpecs
     derived_scores: DerivedScores
     cargo_space: str

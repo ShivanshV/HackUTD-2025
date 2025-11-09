@@ -117,7 +117,12 @@ const CarDetailsView: React.FC<CarDetailsViewProps> = ({ car, onBack, userPrefer
           )}
         </div>
         <div className={styles.heroContent}>
-          <h1 className={styles.carTitle}>{car.year} {car.make} {car.model}</h1>
+          <div className={styles.titleRow}>
+            <h1 className={styles.carTitle}>{car.year} {car.make} {car.model}</h1>
+            {car.condition && (
+              <span className={styles.conditionBadge}>{car.condition}</span>
+            )}
+          </div>
           <p className={styles.carSubtitle}>{car.trim} • {car.specs.body_style}</p>
           <p className={styles.description}>{car.description}</p>
           <p className={styles.price}>Starting MSRP {formatPrice(car.specs.pricing.base_msrp)}*</p>

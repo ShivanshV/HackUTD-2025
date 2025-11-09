@@ -8,7 +8,7 @@ router = APIRouter()
 @router.get("/vehicles", response_model=List[Vehicle])
 async def get_all_vehicles(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(50, ge=1, le=100, description="Number of records to return"),
+    limit: int = Query(50, ge=1, le=500, description="Number of records to return"),
 ):
     """
     Get all vehicles with pagination
@@ -33,7 +33,7 @@ async def search_vehicles(
     min_seating: Optional[int] = Query(None, ge=1, description="Minimum seating capacity"),
     year: Optional[int] = Query(None, ge=2000, description="Model year"),
     skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=100),
+    limit: int = Query(50, ge=1, le=500),
 ):
     """
     Search vehicles with filters
@@ -59,4 +59,38 @@ async def get_vehicle_by_id(vehicle_id: str):
     if not vehicle:
         raise HTTPException(status_code=404, detail=f"Vehicle not found: {vehicle_id}")
     return vehicle
+
+@router.get("/vehicles/ai-suggested", response_model=List[Vehicle])
+async def get_ai_suggested_vehicles():
+    """
+    Get vehicles recommended by the AI agent from AiSuggested.json
+    Returns empty list if no recommendations available
+    """
+    import os
+    import json
+    
+    try:
+        data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        ai_suggested_path = os.path.join(data_dir, "AiSuggested.json")
+        
+        if not os.path.exists(ai_suggested_path):
+            return []
+        
+        with open(ai_suggested_path, "r") as f:
+            vehicles_data = json.load(f)
+        
+        # Convert dicts to Vehicle models
+        vehicles = []
+        for vehicle_dict in vehicles_data:
+            try:
+                vehicle = Vehicle(**vehicle_dict)
+                vehicles.append(vehicle)
+            except Exception as e:
+                print(f"Error parsing vehicle from AiSuggested.json: {e}")
+                continue
+        
+        return vehicles
+    except Exception as e:
+        print(f"Error reading AiSuggested.json: {e}")
+        return []
 

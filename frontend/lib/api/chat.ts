@@ -11,13 +11,13 @@ const apiClient = axios.create({
 });
 
 // Send chat message to backend
-export async function sendChatMessage(messages: ChatMessage[]): Promise<string> {
+export async function sendChatMessage(messages: ChatMessage[]): Promise<ChatResponse> {
   try {
     const response = await apiClient.post<ChatResponse>('/api/chat', {
       messages,
     } as ChatRequest);
     
-    return response.data.content;
+    return response.data;
   } catch (error) {
     console.error('Error sending chat message:', error);
     throw new Error('Failed to get response from AI assistant');
