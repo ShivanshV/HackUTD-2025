@@ -1,19 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import styles from './Header.module.css';
 
 type TabType = 'catalog' | 'smart' | 'compare' | '3d';
 
 export default function Header() {
-  const [activeTab, setActiveTab] = useState<TabType>('smart');
+  const router = useRouter();
+  const pathname = usePathname();
 
   const tabs = [
-    { id: 'catalog' as TabType, label: 'Catalog Search', icon: '📋' },
-    { id: 'smart' as TabType, label: 'Smart Search', icon: '🤖' },
-    { id: 'compare' as TabType, label: 'Compare', icon: '⚖️' },
-    { id: '3d' as TabType, label: '3D Model', icon: '🎨' },
+    { id: 'catalog' as TabType, label: 'Catalog Search', icon: '▦', path: '/catalog' },
+    { id: 'smart' as TabType, label: 'Smart Search', icon: '◈', path: '/' },
+    { id: 'compare' as TabType, label: 'Compare', icon: '⇄', path: '/compare' },
+    { id: '3d' as TabType, label: '3D Model', icon: '⬡', path: '/3d-model' },
   ];
+
+  const handleTabClick = (path: string) => {
+    router.push(path);
+  };
 
   return (
     <header className={styles.header}>
@@ -40,8 +45,8 @@ export default function Header() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`${styles.navTab} ${activeTab === tab.id ? styles.active : ''}`}
-              onClick={() => setActiveTab(tab.id)}
+              className={`${styles.navTab} ${pathname === tab.path ? styles.active : ''}`}
+              onClick={() => handleTabClick(tab.path)}
             >
               <span className={styles.tabIcon}>{tab.icon}</span>
               <span className={styles.tabLabel}>{tab.label}</span>

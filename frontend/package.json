@@ -10,11 +10,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@types/three": "^0.181.0",
     "axios": "^1.6.2",
     "next": "^14.0.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "recharts": "^3.3.0"
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.3.0",
+    "three": "^0.160.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
