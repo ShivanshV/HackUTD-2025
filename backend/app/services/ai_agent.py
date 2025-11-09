@@ -15,6 +15,7 @@ This ensures:
 from typing import List, Dict, Any, Optional
 import json
 import re
+from pathlib import Path
 from openai import OpenAI  # OpenAI SDK used for Nemotron API (compatible format)
 from app.models.chat import ChatMessage
 from app.core.config import settings
@@ -36,31 +37,189 @@ class AIAgent:
         
         # Access to catalog scoring service
         self.catalog = catalog_scoring_service
+        
+        # Define tools for Nemotron to call
+        self.tools = self._define_tools()
+        
+        # Path to suggested.json file
+        self.suggested_json_path = Path(__file__).parent.parent / "data" / "suggested.json"
+    
+    def _define_tools(self) -> List[Dict[str, Any]]:
+        """Define tools available to Nemotron for orchestration"""
+        return [
+            {
+                "type": "function",
+                "function": {
+                    "name": "score_cars_for_user",
+                    "description": "Score and rank Toyota vehicles based on user preferences. Use this when the user provides vehicle requirements like budget, passengers, priorities, features, or terrain. Returns a list of scored cars ranked by how well they match the user's needs.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "budget_max": {
+                                "type": "number",
+                                "description": "Maximum budget in dollars (base price or total cost)"
+                            },
+                            "passengers": {
+                                "type": "integer",
+                                "description": "Number of passengers needed"
+                            },
+                            "priorities": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "User priorities: fuel_efficiency, safety, space, performance, budget"
+                            },
+                            "features_wanted": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Desired features: awd, hybrid, 3_row_seating, etc."
+                            },
+                            "terrain": {
+                                "type": "string",
+                                "description": "Driving terrain: city, highway, offroad, rough_city",
+                                "enum": ["city", "highway", "offroad", "rough_city"]
+                            },
+                            "commute_miles": {
+                                "type": "integer",
+                                "description": "One-way commute distance in miles"
+                            },
+                            "has_children": {
+                                "type": "boolean",
+                                "description": "Whether user has children (needs baby seat room)"
+                            },
+                            "needs_ground_clearance": {
+                                "type": "boolean",
+                                "description": "Whether user needs good ground clearance for potholes/speed bumps"
+                            },
+                            "weights": {
+                                "type": "object",
+                                "description": "Custom scoring weights (optional). Keys: budget, fuel_efficiency, seating, drivetrain, vehicle_type, performance, features, safety. Values should sum to ~1.0"
+                            }
+                        },
+                        "required": []
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "evaluate_affordability",
+                    "description": "Calculate affordability for a specific vehicle based on financial profile. Use this when the user provides financial information (income, credit score, down payment) and you want to check if a specific car is affordable. Returns monthly payment, DTI ratio, affordability score, and warnings.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "vehicle_id": {
+                                "type": "string",
+                                "description": "Car ID (e.g., 'prius-le-2020', 'camry-le-2018')"
+                            },
+                            "annual_income": {
+                                "type": "number",
+                                "description": "Annual income in dollars"
+                            },
+                            "monthly_income": {
+                                "type": "number",
+                                "description": "Monthly income in dollars"
+                            },
+                            "credit_score": {
+                                "type": ["integer", "string"],
+                                "description": "Credit score: numeric (300-850) or text (excellent, good, fair, poor)"
+                            },
+                            "down_payment": {
+                                "type": "number",
+                                "description": "Down payment amount in dollars"
+                            },
+                            "loan_term_months": {
+                                "type": "integer",
+                                "description": "Loan term in months (default: 60)"
+                            },
+                            "trade_in_value": {
+                                "type": "number",
+                                "description": "Trade-in value in dollars"
+                            }
+                        },
+                        "required": ["vehicle_id"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_all_cars",
+                    "description": "Get all Toyota vehicles from the catalog. Use this when you need to see the full catalog or search for specific vehicles.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {},
+                        "required": []
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_car_details",
+                    "description": "Get detailed information about a specific vehicle by ID. Use this when the user asks about a specific car or you need detailed specs for a vehicle.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "vehicle_id": {
+                                "type": "string",
+                                "description": "Car ID (e.g., 'prius-le-2020', 'camry-le-2018')"
+                            }
+                        },
+                        "required": ["vehicle_id"]
+                    }
+                }
+            }
+        ]
     
     def _build_system_prompt(self) -> str:
-        """Build comprehensive system prompt for Nemotron"""
-        return """You are a knowledgeable Toyota vehicle advisor powered by real Toyota catalog data AND financial analysis tools.
+        """Build comprehensive system prompt for Nemotron with orchestration instructions"""
+        return """You are an intelligent Toyota vehicle advisor powered by NVIDIA Nemotron. Your role is to orchestrate workflows, call tools, and provide personalized car recommendations.
 
-Your job is to:
-1. Understand what the user needs (budget, family size, commute, priorities)
-2. Understand their financial situation (income, down payment, credit score)
-3. Use the Toyota catalog to find the best matches
-4. Evaluate affordability and provide realistic financial guidance
-5. Explain recommendations clearly with specific reasons
+YOUR CAPABILITIES:
+You have access to tools that allow you to:
+1. Score and rank Toyota vehicles based on user preferences (budget, passengers, priorities, features, terrain)
+2. Evaluate affordability for specific vehicles (monthly payments, DTI ratio, total cost)
+3. Get detailed information about specific vehicles
+4. Access the full Toyota catalog
 
-IMPORTANT: You have access to tools that:
-- Score Toyota vehicles based on user needs (budget, passengers, commute, terrain, features, priorities)
-- Evaluate affordability based on financial profile (income, credit score, down payment)
-- Calculate monthly payments and total cost of ownership
-- Adjust scoring weights based on user priorities (fuel efficiency, performance, safety, etc.)
+WORKFLOW ORCHESTRATION:
+You should plan and execute multi-step workflows:
 
-When a user asks about cars, extract:
-- Vehicle requirements (budget, passengers, commute distance, terrain, features wanted, etc.)
-- Financial information (income, down payment, credit score, loan term preference)
+1. ANALYZE USER QUERY:
+   - Extract vehicle requirements (budget, passengers, commute, terrain, features, priorities)
+   - Extract financial information (income, credit score, down payment)
+   - Identify missing information
 
-HANDLING AMBIGUOUS QUERIES:
-If the user's query is unclear or missing critical information, ask clarifying questions in a friendly, conversational way.
-Focus on what's needed to use the scoring and financial analysis tools effectively.
+2. PLAN YOUR WORKFLOW:
+   - If user has vehicle preferences → Call score_cars_for_user tool
+   - If user has financial info → Call evaluate_affordability for top cars
+   - If information is missing → Ask clarifying questions
+   - If user asks about specific car → Call get_car_details tool
+
+3. EXECUTE TOOLS:
+   - Call tools in sequence based on your plan
+   - Analyze tool results
+   - Decide if more tools are needed
+   - Adapt your workflow based on results
+
+4. REASON ABOUT RESULTS:
+   - Compare scored cars
+   - Evaluate affordability
+   - Consider user priorities
+   - Make recommendations
+
+5. GENERATE RESPONSE:
+   - Explain your reasoning
+   - Provide specific recommendations
+   - Include financial analysis if available
+   - Ask for missing information if needed
+
+IMPORTANT:
+- Use tools proactively to get data
+- Don't make up car specifications - use tools to get real data
+- Plan multi-step workflows when needed
+- Reason about tool results before making recommendations
+- Be conversational and helpful
 
 Be conversational, helpful, and always ground your recommendations in real data.
 Never make up specifications or financial advice - only use what's calculated from the tools.
@@ -925,8 +1084,446 @@ Financial Analysis:
         
         return car_info
     
-    async def process_message(self, messages: List[ChatMessage]) -> tuple[str, List[Dict[str, Any]], Optional[str]]:
+    def _execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         """
+        Execute a tool function based on tool name and arguments.
+        
+        This is called by Nemotron via function calling to orchestrate workflows.
+        
+        Args:
+            tool_name: Name of the tool to execute
+            arguments: Arguments for the tool
+            
+        Returns:
+            Tool execution result (dict or list)
+        """
+        try:
+            if tool_name == "score_cars_for_user":
+                # Call catalog scoring service
+                print(f"📊 Executing score_cars_for_user with arguments: {arguments}")
+                result = self.catalog.score_cars_for_user(arguments)
+                print(f"📊 Scoring service returned {len(result)} cars")
+                # Convert to list of dicts for JSON serialization
+                # Keep full car data for extraction, but limit to top 10
+                simplified_result = [{"id": car["id"], "score": car["score"], "reasons": car.get("reasons", [])} for car in result[:10]]
+                print(f"📊 Returning {len(simplified_result)} cars from scoring tool")
+                return simplified_result
+            
+            elif tool_name == "evaluate_affordability":
+                # Get car details first
+                vehicle_id = arguments.get("vehicle_id")
+                if not vehicle_id:
+                    return {"error": "vehicle_id is required"}
+                
+                car = self._get_car_details(vehicle_id)
+                if not car:
+                    return {"error": f"Vehicle {vehicle_id} not found"}
+                
+                # Create financial profile from arguments
+                financial_profile = {
+                    "annual_income": arguments.get("annual_income"),
+                    "monthly_income": arguments.get("monthly_income"),
+                    "credit_score": arguments.get("credit_score"),
+                    "down_payment": arguments.get("down_payment"),
+                    "loan_term_months": arguments.get("loan_term_months", 60),
+                    "trade_in_value": arguments.get("trade_in_value")
+                }
+                
+                # Remove None values
+                financial_profile = {k: v for k, v in financial_profile.items() if v is not None}
+                
+                # Evaluate affordability
+                affordability = financial_service.evaluate_affordability(car, financial_profile)
+                
+                # Return as dict for JSON serialization
+                return {
+                    "vehicle_id": vehicle_id,
+                    "monthly_payment": affordability.monthly_payment,
+                    "down_payment_required": affordability.down_payment_required,
+                    "total_cost_5yr": affordability.total_cost_5yr,
+                    "debt_to_income_ratio": affordability.debt_to_income_ratio,
+                    "affordability_score": affordability.affordability_score,
+                    "affordable": affordability.affordable,
+                    "warnings": affordability.warnings,
+                    "reasons": affordability.reasons
+                }
+            
+            elif tool_name == "get_all_cars":
+                # Get all cars from catalog
+                all_cars = self.catalog.get_all_cars()
+                # Return limited info for each car (to avoid huge responses)
+                return [{"id": car["id"], "make": car.get("make"), "model": car.get("model"), "year": car.get("year"), "trim": car.get("trim")} for car in all_cars[:50]]  # Limit to 50 for now
+            
+            elif tool_name == "get_car_details":
+                # Get car details by ID
+                vehicle_id = arguments.get("vehicle_id")
+                if not vehicle_id:
+                    return {"error": "vehicle_id is required"}
+                
+                car = self._get_car_details(vehicle_id)
+                if not car:
+                    return {"error": f"Vehicle {vehicle_id} not found"}
+                
+                # Return car details (full object)
+                return car
+            
+            else:
+                return {"error": f"Unknown tool: {tool_name}"}
+        
+        except Exception as e:
+            print(f"Error executing tool {tool_name}: {e}")
+            import traceback
+            traceback.print_exc()
+            return {"error": f"Error executing tool {tool_name}: {str(e)}"}
+    
+    def _update_suggested_json(self, recommended_car_ids: List[str]) -> None:
+        """
+        Update suggested.json with full car data for recommended car IDs.
+        
+        Finds each car by ID in cars.json and copies all its data to suggested.json.
+        This file is updated every time there's a new recommended list.
+        
+        Args:
+            recommended_car_ids: List of car IDs to include in suggested.json
+        """
+        if not recommended_car_ids:
+            # If no recommendations, don't clear the file - keep previous recommendations
+            # This prevents clearing the file when user asks follow-up questions
+            print(f"ℹ️ No new recommended cars, keeping previous suggestions in suggested.json")
+            return
+        
+        try:
+            # Load all cars from cars.json
+            cars_json_path = Path(__file__).parent.parent / "data" / "cars.json"
+            with open(cars_json_path, 'r') as f:
+                all_cars = json.load(f)
+            
+            # Create a dictionary for quick lookup by ID
+            cars_by_id = {car.get("id"): car for car in all_cars if car.get("id")}
+            
+            # Find and collect recommended cars (maintain order from recommended_car_ids)
+            suggested_cars = []
+            missing_ids = []
+            
+            for car_id in recommended_car_ids:
+                if car_id in cars_by_id:
+                    # Copy all data for this car
+                    suggested_cars.append(cars_by_id[car_id])
+                else:
+                    missing_ids.append(car_id)
+                    print(f"⚠️ Car ID '{car_id}' not found in cars.json")
+            
+            # Write to suggested.json
+            with open(self.suggested_json_path, 'w') as f:
+                json.dump(suggested_cars, f, indent=2)
+            
+            print(f"✅ Updated suggested.json with {len(suggested_cars)} recommended cars")
+            if missing_ids:
+                print(f"⚠️ {len(missing_ids)} car IDs not found: {missing_ids}")
+                
+        except FileNotFoundError:
+            print(f"⚠️ cars.json not found at {cars_json_path}")
+        except json.JSONDecodeError as e:
+            print(f"⚠️ Error parsing cars.json: {e}")
+        except Exception as e:
+            print(f"⚠️ Error updating suggested.json: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def _extract_car_ids_from_nemotron_response(self, response_text: str, valid_car_ids: List[str]) -> List[str]:
+        """
+        Extract car IDs from Nemotron's response.
+        
+        Tries two methods:
+        1. Extract from JSON block (preferred): Looks for ```json block with recommended_car_ids
+        2. Extract from text: Matches car names mentioned in text to car IDs
+        
+        Args:
+            response_text: Nemotron's full response text
+            valid_car_ids: List of valid car IDs to filter against
+            
+        Returns:
+            List of car IDs extracted from response (in order of appearance)
+        """
+        extracted_ids = []
+        
+        # Method 1: Try to extract from JSON block
+        import re
+        json_pattern = r'```json\s*\n\s*\{\s*"recommended_car_ids"\s*:\s*\[(.*?)\]\s*\}\s*\n\s*```'
+        json_match = re.search(json_pattern, response_text, re.DOTALL | re.IGNORECASE)
+        
+        if json_match:
+            # Extract the array content
+            array_content = json_match.group(1)
+            # Parse the IDs (handle quotes, commas, whitespace)
+            id_pattern = r'"([^"]+)"'
+            json_ids = re.findall(id_pattern, array_content)
+            
+            if json_ids:
+                # Validate IDs are in valid list
+                validated_json_ids = [id for id in json_ids if id in valid_car_ids]
+                if validated_json_ids:
+                    extracted_ids = validated_json_ids
+                    print(f"✅ Extracted {len(extracted_ids)} car IDs from JSON block")
+                    return extracted_ids
+        
+        # Method 2: Extract from text by matching car names
+        # This is a fallback if JSON extraction fails
+        # Get all cars from catalog to match names
+        all_cars = self.catalog.get_all_cars()
+        car_id_map = {}  # Map car name patterns to car IDs
+        
+        for car in all_cars:
+            car_id = car.get('id', '')
+            if car_id not in valid_car_ids:
+                continue  # Only consider valid car IDs
+            
+            # Create multiple name patterns for matching
+            make = car.get('make', '').lower()
+            model = car.get('model', '').lower()
+            trim = car.get('trim', '').lower()
+            year = str(car.get('year', ''))
+            
+            # Pattern: "Toyota Model" or "Model" or "Model Trim"
+            patterns = [
+                f"{make} {model}",
+                model,
+                f"{model} {trim}",
+                f"{year} {make} {model}",
+                f"{year} {model}",
+            ]
+            
+            for pattern in patterns:
+                if pattern and pattern not in car_id_map:
+                    car_id_map[pattern] = car_id
+        
+        # Search for car names in response text (case-insensitive)
+        response_lower = response_text.lower()
+        mentioned_cars = []
+        
+        # Sort by pattern length (longest first) to match more specific patterns first
+        sorted_patterns = sorted(car_id_map.items(), key=lambda x: len(x[0]), reverse=True)
+        
+        for pattern, car_id in sorted_patterns:
+            if pattern in response_lower and car_id not in mentioned_cars:
+                mentioned_cars.append(car_id)
+        
+        if mentioned_cars:
+            # Return in order of appearance (approximate)
+            extracted_ids = mentioned_cars[:10]  # Limit to top 10
+            print(f"✅ Extracted {len(extracted_ids)} car IDs from text matching")
+        
+        return extracted_ids
+    
+    async def process_message(self, messages: List[ChatMessage]) -> tuple[str, List[str], Optional[str]]:
+        """
+        Process incoming messages with Nemotron orchestration (function calling)
+        
+        Flow:
+        1. Nemotron analyzes user query
+        2. Nemotron plans workflow and calls tools
+        3. Nemotron reasons about tool results
+        4. Nemotron generates response
+        
+        This enables:
+        - Multi-step workflow orchestration
+        - Tool and API integration
+        - Reasoning beyond single-prompt conversation
+        
+        Args:
+            messages: Full chat history
+        
+        Returns:
+            Tuple of (response_text, recommended_car_ids, scoring_method)
+            - response_text: Agent's response as a string
+            - recommended_car_ids: List of car ID strings (e.g., ["camry-le-2018", "rav4-xle-2020"])
+            - scoring_method: "preference_based", "affordability_based", or None
+        """
+        if not self.client:
+            return ("API key not configured. Please set NEMOTRON_API_KEY in .env", [], None)
+        
+        try:
+            # Convert messages to Nemotron API format
+            formatted_messages = self._convert_messages_to_nemotron_format(messages)
+            
+            # Track recommended car IDs from tool calls
+            recommended_car_ids_list = []
+            scoring_method = None
+            
+            # Tool call loop for multi-step workflow orchestration
+            max_iterations = 10
+            iteration = 0
+            
+            print(f"🔄 Starting process_message with {len(formatted_messages)} messages")
+            
+            while iteration < max_iterations:
+                iteration += 1
+                print(f"🔄 Iteration {iteration}/{max_iterations}")
+                
+                # Call Nemotron API with tools
+                try:
+                    completion = self.client.chat.completions.create(
+                        model="nvidia/nvidia-nemotron-nano-9b-v2",
+                        messages=formatted_messages,
+                        tools=self.tools,
+                        tool_choice="auto",  # Let Nemotron decide when to use tools
+                        temperature=settings.MODEL_TEMPERATURE,
+                        max_tokens=settings.MAX_TOKENS,
+                        stream=False,  # Tool calling requires non-streaming
+                    )
+                    
+                    # Get the assistant's message
+                    message = completion.choices[0].message
+                    print(f"📨 Nemotron response: content={bool(message.content)}, tool_calls={len(message.tool_calls) if message.tool_calls else 0}")
+                except Exception as e:
+                    print(f"❌ Error calling Nemotron API: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    raise
+                
+                # Add assistant's message to conversation
+                assistant_message = {
+                    "role": "assistant",
+                    "content": message.content or "",
+                }
+                
+                # Add tool calls if any
+                if message.tool_calls:
+                    assistant_message["tool_calls"] = [
+                        {
+                            "id": tc.id,
+                            "type": tc.type,
+                            "function": {
+                                "name": tc.function.name,
+                                "arguments": tc.function.arguments,
+                            }
+                        } for tc in message.tool_calls
+                    ]
+                
+                formatted_messages.append(assistant_message)
+                
+                # If no tool calls, Nemotron is done - return response
+                if not message.tool_calls:
+                    # Check if we have content
+                    if message.content:
+                        response_text = message.content
+                        print(f"✅ Final response: {len(response_text)} chars, {len(recommended_car_ids_list)} recommended cars")
+                    else:
+                        # If no content but we have recommended cars, generate a summary
+                        if recommended_car_ids_list:
+                            print("⚠️ Warning: Nemotron returned empty content but we have recommended cars")
+                            response_text = f"I've found {len(recommended_car_ids_list)} Toyota vehicles that match your preferences. Please check the recommendations on the right."
+                        else:
+                            print("⚠️ Warning: Nemotron returned empty content and no recommended cars")
+                            response_text = "I'm here to help you find the perfect Toyota! Could you tell me more about what you're looking for?"
+                    
+                    # Update suggested.json with recommended cars (only if we have new recommendations)
+                    if recommended_car_ids_list:
+                        print(f"💾 Updating suggested.json with {len(recommended_car_ids_list)} recommended cars")
+                        self._update_suggested_json(recommended_car_ids_list)
+                    else:
+                        print(f"ℹ️ No recommended cars in this response, keeping previous suggestions")
+                    
+                    return (response_text, recommended_car_ids_list, scoring_method)
+                
+                # Execute tool calls
+                for tool_call in message.tool_calls:
+                    tool_name = tool_call.function.name
+                    try:
+                        tool_arguments = json.loads(tool_call.function.arguments)
+                    except json.JSONDecodeError:
+                        tool_arguments = {}
+                    
+                    print(f"🔧 Nemotron calling tool: {tool_name} with args: {tool_arguments}")
+                    
+                    # Execute the tool
+                    tool_result = self._execute_tool(tool_name, tool_arguments)
+                    
+                    # Track car IDs from scoring tool calls
+                    if tool_name == "score_cars_for_user":
+                        scoring_method = "preference_based"
+                        print(f"📊 Processing score_cars_for_user result: type={type(tool_result)}, is_list={isinstance(tool_result, list)}")
+                        if isinstance(tool_result, list):
+                            # Extract car IDs from scored results
+                            recommended_car_ids_list = [car.get("id") for car in tool_result if car.get("id")]
+                            print(f"📊 Extracted {len(recommended_car_ids_list)} car IDs from scoring tool: {recommended_car_ids_list[:5]}...")
+                        else:
+                            print(f"⚠️ Tool result is not a list: {type(tool_result)}")
+                    
+                    # Add tool result to conversation
+                    # Limit tool result size to avoid token limits
+                    tool_result_str = json.dumps(tool_result) if isinstance(tool_result, (dict, list)) else str(tool_result)
+                    original_length = len(tool_result_str)
+                    if original_length > 10000:  # Limit to ~10k chars
+                        tool_result_str = tool_result_str[:10000] + "... (truncated)"
+                        print(f"⚠️ Tool result truncated from {original_length} to 10000 chars")
+                    else:
+                        print(f"📦 Tool result size: {original_length} chars")
+                    
+                    formatted_messages.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": tool_name,
+                        "content": tool_result_str,
+                    })
+                    
+                    print(f"✅ Added tool result to conversation history (total messages: {len(formatted_messages)})")
+                    
+                    print(f"✅ Tool {tool_name} executed successfully")
+                
+                # Continue loop - Nemotron will process tool results and decide next steps
+            
+            # If we've reached max iterations, force a final response
+            print(f"⚠️ Reached max iterations ({max_iterations}), forcing final response")
+            try:
+                final_completion = self.client.chat.completions.create(
+                    model="nvidia/nvidia-nemotron-nano-9b-v2",
+                    messages=formatted_messages,
+                    tools=self.tools,
+                    tool_choice="none",  # Force no more tool calls
+                    temperature=settings.MODEL_TEMPERATURE,
+                    max_tokens=settings.MAX_TOKENS,
+                )
+                
+                final_message = final_completion.choices[0].message
+                if final_message.content:
+                    response_text = final_message.content
+                    print(f"✅ Final forced response: {len(response_text)} chars")
+                else:
+                    # If still no content, generate based on what we have
+                    if recommended_car_ids_list:
+                        response_text = f"I've found {len(recommended_car_ids_list)} Toyota vehicles that match your preferences. Please check the recommendations on the right."
+                    else:
+                        response_text = "I'm here to help you find the perfect Toyota! Could you tell me more about what you're looking for?"
+                    print(f"⚠️ Final forced response had no content, using fallback: {len(response_text)} chars")
+            except Exception as e:
+                print(f"❌ Error forcing final response: {e}")
+                # Fallback response
+                if recommended_car_ids_list:
+                    response_text = f"I've found {len(recommended_car_ids_list)} Toyota vehicles that match your preferences. Please check the recommendations on the right."
+                else:
+                    response_text = "I encountered an issue processing your request. Please try again."
+            
+            # Update suggested.json with recommended cars (only if we have new recommendations)
+            if recommended_car_ids_list:
+                print(f"💾 Updating suggested.json with {len(recommended_car_ids_list)} recommended cars")
+                self._update_suggested_json(recommended_car_ids_list)
+            else:
+                print(f"ℹ️ No recommended cars in this response, keeping previous suggestions")
+            
+            return (response_text, recommended_car_ids_list, scoring_method)
+            
+        except Exception as e:
+            print(f"Error in process_message: {e}")
+            import traceback
+            traceback.print_exc()
+            return (f"I encountered an error while processing your request. Please try again.", [], None)
+    
+    async def process_message_old(self, messages: List[ChatMessage]) -> tuple[str, List[Dict[str, Any]], Optional[str]]:
+        """
+        OLD IMPLEMENTATION: Python orchestrates everything
+        This is kept for reference but not used.
+        
         Process incoming messages with Nemotron + Catalog integration
         
         Flow:
@@ -961,6 +1558,7 @@ Financial Analysis:
             
             # Initialize recommended_car_ids list to return (just IDs, not full car data)
             recommended_car_ids_list = []
+            top_cars_filtered = []  # Initialize to ensure it's always defined
             
             # Determine what to show based on available information
             has_vehicle_preferences = user_profile and (
@@ -1157,6 +1755,20 @@ Financial Analysis:
                         catalog_context += f"\n{i}. {self._format_car_for_context(car_details, scored_car['score'], scored_car['reasons'], financial_profile if financial_profile else None)}"
                 
                 catalog_context += "\n--- END CATALOG RESULTS ---\n"
+                
+                # CRITICAL ALIGNMENT INSTRUCTIONS: Force Nemotron to only mention cars from the list
+                catalog_context += "\n⚠️ CRITICAL ALIGNMENT REQUIREMENTS:\n"
+                catalog_context += f"1. You MUST ONLY mention cars from the list above (exactly {len(top_cars_filtered[:num_results])} cars shown).\n"
+                catalog_context += "2. Do NOT mention any vehicles that are NOT in the list above.\n"
+                catalog_context += "3. At the END of your response, you MUST return the car IDs in this exact JSON format:\n"
+                catalog_context += "```json\n"
+                catalog_context += "{\"recommended_car_ids\": [\"car-id-1\", \"car-id-2\", \"car-id-3\"]}\n"
+                catalog_context += "```\n"
+                catalog_context += "4. List the car IDs in the order you recommend them (best first).\n"
+                catalog_context += "5. Only include car IDs that are in the list above.\n"
+                catalog_context += "6. The JSON block MUST be the LAST thing in your response.\n"
+                catalog_context += "\nIf you mention a car in your text, its ID MUST be in the JSON block.\n"
+                catalog_context += "If you don't return JSON, the system will use different cars than you mention.\n"
                 
                 # If we have affordability-based results with no vehicle preferences, format response directly
                 if scoring_method == "affordability_based" and not has_vehicle_preferences and top_cars_filtered:
@@ -1371,6 +1983,33 @@ Financial Analysis:
                     response_content += chunk.choices[0].delta.content
             
             response_text = response_content.strip() if response_content.strip() else "I'm here to help you find the perfect Toyota!"
+            
+            # Extract car IDs from Nemotron's response (if JSON is present and we have cars)
+            # This ensures alignment: if Nemotron mentions cars, we use those IDs
+            # Only attempt extraction if we have top_cars_filtered (meaning we showed cars to Nemotron)
+            if top_cars_filtered and response_text:
+                valid_car_ids = [car_data.get('details', {}).get('id') for car_data in top_cars_filtered if car_data.get('details', {}).get('id')]
+                
+                if valid_car_ids:
+                    extracted_ids = self._extract_car_ids_from_nemotron_response(
+                        response_text, 
+                        valid_car_ids
+                    )
+                    
+                    # Use extracted IDs if valid and non-empty, otherwise use Python's top-scored list
+                    if extracted_ids:
+                        # Validate all IDs are in the top-scored list
+                        validated_ids = [id for id in extracted_ids if id in valid_car_ids]
+                        
+                        if validated_ids:
+                            # Use Nemotron's IDs (maintains order from Nemotron's response)
+                            recommended_car_ids_list = validated_ids
+                            print(f"✅ Using Nemotron's extracted car IDs: {validated_ids}")
+                        else:
+                            print(f"⚠️ Nemotron's extracted IDs not all valid, using Python's top-scored list")
+                    else:
+                        print(f"ℹ️ No car IDs extracted from Nemotron response, using Python's top-scored list")
+            
             return (response_text, recommended_car_ids_list, scoring_method)
             
         except Exception as e:

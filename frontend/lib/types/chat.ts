@@ -13,6 +13,8 @@ export interface ChatRequest {
 export interface ChatResponse {
   role: 'agent';
   content: string;
+  recommended_car_ids?: string[] | null;
+  scoring_method?: string | null;
 }
 
 // Vehicle types matching the backend data structure

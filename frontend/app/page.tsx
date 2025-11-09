@@ -72,7 +72,10 @@ export default function Home() {
           />
         )}
         {currentView === 'chat' && (
-          <ChatInterface onNewSearch={handleNavigateToSearch} />
+          <ChatInterface 
+            onNewSearch={handleNavigateToSearch}
+            initialQuery={searchQuery}
+          />
         )}
         {currentView === 'catalog-results' && (
           <CatalogResults 

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
+import json
+from pathlib import Path
 from app.models.chat import Vehicle
 from app.services.vehicle_service import vehicle_service
 
@@ -59,4 +61,45 @@ async def get_vehicle_by_id(vehicle_id: str):
     if not vehicle:
         raise HTTPException(status_code=404, detail=f"Vehicle not found: {vehicle_id}")
     return vehicle
+
+@router.get("/vehicles/suggested", response_model=List[Vehicle])
+async def get_suggested_vehicles():
+    """
+    Get recommended vehicles from suggested.json
+    
+    Returns the list of recommended vehicles that were generated
+    from the most recent chat interaction. This file is automatically
+    updated after each user prompt when recommendations are available.
+    """
+    try:
+        suggested_json_path = Path(__file__).parent.parent / "data" / "suggested.json"
+        
+        # Check if file exists
+        if not suggested_json_path.exists():
+            return []
+        
+        # Read suggested.json
+        with open(suggested_json_path, 'r') as f:
+            suggested_cars = json.load(f)
+        
+        # Handle empty array or invalid data
+        if not suggested_cars or not isinstance(suggested_cars, list):
+            return []
+        
+        # Convert to Vehicle models
+        vehicles = []
+        for car in suggested_cars:
+            try:
+                vehicles.append(Vehicle(**car))
+            except Exception as e:
+                print(f"⚠️ Error converting car to Vehicle model: {e}")
+                continue
+        
+        return vehicles
+    except json.JSONDecodeError:
+        # If file is empty or invalid JSON, return empty list
+        return []
+    except Exception as e:
+        print(f"Error reading suggested.json: {e}")
+        return []
 

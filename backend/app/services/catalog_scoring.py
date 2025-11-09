@@ -65,11 +65,12 @@ class CatalogScoringService:
             scored_cars.append({
                 "id": car["id"],
                 "score": round(score, 2),
-                "reasons": reasons
+                "reasons": reasons,
+                "year": car.get("year", 0)  # Include year for tiebreaking
             })
         
-        # Sort by score descending
-        scored_cars.sort(key=lambda x: x["score"], reverse=True)
+        # Sort by score descending, then by year descending (newest first) as tiebreaker
+        scored_cars.sort(key=lambda x: (x["score"], x["year"]), reverse=True)
         
         return scored_cars
     

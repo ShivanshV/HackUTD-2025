@@ -1,0 +1,962 @@
+[
+  {
+    "id": "corolla-hybrid-le-2025",
+    "make": "Toyota",
+    "model": "Corolla Hybrid",
+    "trim": "LE",
+    "year": 2025,
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "compact_sedan",
+      "pricing": {
+        "base_msrp": 25200,
+        "msrp_range": [
+          25200,
+          35200
+        ],
+        "est_lease_monthly": 316,
+        "est_loan_monthly": 430
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 50,
+        "mpg_hwy": 53,
+        "mpg_combined": 51,
+        "est_range_miles": 714
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 371,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4630,
+        "width_mm": 1780,
+        "height_mm": 1435,
+        "turning_radius_m": 5.4
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": true
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.3,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.75,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.8
+    },
+    "cargo_space": "13.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 611,
+    "annual_insurance": 568,
+    "annual_maintenance": 450,
+    "description": "Corolla Hybrid 2025 offers hybrid efficiency with 5 seats. Ideal for compact sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/corolla/corolla-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/corolla_hybrid_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 4,
+        "price": 25900
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 5,
+        "price": 25600
+      }
+    ]
+  },
+  {
+    "id": "highlander-hybrid-le-2025",
+    "make": "Toyota",
+    "model": "Highlander Hybrid",
+    "trim": "LE",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "mid_size_suv",
+      "pricing": {
+        "base_msrp": 45820,
+        "msrp_range": [
+          45820,
+          55820
+        ],
+        "est_lease_monthly": 574,
+        "est_loan_monthly": 783
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 36,
+        "mpg_hwy": 35,
+        "mpg_combined": 35,
+        "est_range_miles": 490
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 453,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4950,
+        "width_mm": 1930,
+        "height_mm": 1730,
+        "turning_radius_m": 5.9
+      },
+      "comfort": {
+        "ride_comfort_score": 0.85,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.0,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.85,
+      "family_friendly_score": 0.95,
+      "city_commute_score": 0.55,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "16.0 cu ft",
+    "towing_capacity": "5000 lbs",
+    "annual_fuel_cost": 887,
+    "annual_insurance": 705,
+    "annual_maintenance": 450,
+    "description": "Highlander Hybrid 2025 offers hybrid efficiency with 8 seats. Ideal for mid size suv buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/highlander/highlander-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/highlander_hybrid_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 8,
+        "price": 46520
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 8,
+        "price": 46220
+      }
+    ]
+  },
+  {
+    "id": "highlander-hybrid-xle-2025",
+    "make": "Toyota",
+    "model": "Highlander Hybrid",
+    "trim": "XLE",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "mid_size_suv",
+      "pricing": {
+        "base_msrp": 48320,
+        "msrp_range": [
+          48320,
+          58320
+        ],
+        "est_lease_monthly": 605,
+        "est_loan_monthly": 826
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 36,
+        "mpg_hwy": 35,
+        "mpg_combined": 35,
+        "est_range_miles": 490
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 453,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4950,
+        "width_mm": 1930,
+        "height_mm": 1730,
+        "turning_radius_m": 5.9
+      },
+      "comfort": {
+        "ride_comfort_score": 0.85,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.0,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.85,
+      "family_friendly_score": 0.95,
+      "city_commute_score": 0.55,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "16.0 cu ft",
+    "towing_capacity": "5000 lbs",
+    "annual_fuel_cost": 887,
+    "annual_insurance": 722,
+    "annual_maintenance": 450,
+    "description": "Highlander Hybrid 2025 offers hybrid efficiency with 8 seats. Ideal for mid size suv buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/highlander/highlander-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/highlander_hybrid_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 8,
+        "price": 49020
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 1,
+        "price": 48720
+      }
+    ]
+  },
+  {
+    "id": "sienna-le-2025",
+    "make": "Toyota",
+    "model": "Sienna",
+    "trim": "LE",
+    "year": 2025,
+    "specs": {
+      "body_style": "minivan",
+      "size_class": "minivan",
+      "pricing": {
+        "base_msrp": 38750,
+        "msrp_range": [
+          38750,
+          48750
+        ],
+        "est_lease_monthly": 485,
+        "est_loan_monthly": 662
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 36,
+        "mpg_hwy": 36,
+        "mpg_combined": 36,
+        "est_range_miles": 504
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 950,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 5165,
+        "width_mm": 1930,
+        "height_mm": 1750,
+        "turning_radius_m": 5.9
+      },
+      "comfort": {
+        "ride_comfort_score": 0.85,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 7.0,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.8,
+      "family_friendly_score": 0.95,
+      "city_commute_score": 0.5,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "33.6 cu ft",
+    "towing_capacity": "3500 lbs",
+    "annual_fuel_cost": 875,
+    "annual_insurance": 658,
+    "annual_maintenance": 450,
+    "description": "Sienna 2025 offers hybrid efficiency with 8 seats. Ideal for minivan buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/sienna/sienna-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/sienna_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 8,
+        "price": 39450
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 1,
+        "price": 39150
+      }
+    ]
+  },
+  {
+    "id": "sienna-xle-2025",
+    "make": "Toyota",
+    "model": "Sienna",
+    "trim": "XLE",
+    "year": 2025,
+    "specs": {
+      "body_style": "minivan",
+      "size_class": "minivan",
+      "pricing": {
+        "base_msrp": 41250,
+        "msrp_range": [
+          41250,
+          51250
+        ],
+        "est_lease_monthly": 517,
+        "est_loan_monthly": 705
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 36,
+        "mpg_hwy": 36,
+        "mpg_combined": 36,
+        "est_range_miles": 504
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 950,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 5165,
+        "width_mm": 1930,
+        "height_mm": 1750,
+        "turning_radius_m": 5.9
+      },
+      "comfort": {
+        "ride_comfort_score": 0.85,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 7.0,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.8,
+      "family_friendly_score": 0.95,
+      "city_commute_score": 0.5,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "33.6 cu ft",
+    "towing_capacity": "3500 lbs",
+    "annual_fuel_cost": 875,
+    "annual_insurance": 675,
+    "annual_maintenance": 450,
+    "description": "Sienna 2025 offers hybrid efficiency with 8 seats. Ideal for minivan buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/sienna/sienna-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/sienna_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 9,
+        "price": 41950
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 6,
+        "price": 41650
+      }
+    ]
+  },
+  {
+    "id": "sequoia-sr5-2025",
+    "make": "Toyota",
+    "model": "Sequoia",
+    "trim": "SR5",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "full_size_suv",
+      "pricing": {
+        "base_msrp": 62175,
+        "msrp_range": [
+          62175,
+          72175
+        ],
+        "est_lease_monthly": 779,
+        "est_loan_monthly": 1063
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "AWD",
+        "mpg_city": 21,
+        "mpg_hwy": 24,
+        "mpg_combined": 22,
+        "est_range_miles": 308
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 631,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 5660,
+        "width_mm": 2030,
+        "height_mm": 1960,
+        "turning_radius_m": 6.3
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.75
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 9.0,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.5,
+      "family_friendly_score": 0.85,
+      "city_commute_score": 0.3,
+      "road_trip_score": 0.85
+    },
+    "cargo_space": "22.3 cu ft",
+    "towing_capacity": "9520 lbs",
+    "annual_fuel_cost": 1400,
+    "annual_insurance": 814,
+    "annual_maintenance": 450,
+    "description": "Sequoia 2025 offers hybrid efficiency with 8 seats. Ideal for full size suv buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/sequoia/sequoia-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/sequoia_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 3,
+        "price": 62875
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 7,
+        "price": 62575
+      }
+    ]
+  },
+  {
+    "id": "sequoia-limited-2025",
+    "make": "Toyota",
+    "model": "Sequoia",
+    "trim": "Limited",
+    "year": 2025,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "full_size_suv",
+      "pricing": {
+        "base_msrp": 64675,
+        "msrp_range": [
+          64675,
+          74675
+        ],
+        "est_lease_monthly": 811,
+        "est_loan_monthly": 1105
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "AWD",
+        "mpg_city": 21,
+        "mpg_hwy": 24,
+        "mpg_combined": 22,
+        "est_range_miles": 308
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 631,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 5660,
+        "width_mm": 2030,
+        "height_mm": 1960,
+        "turning_radius_m": 6.3
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.75
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 9.0,
+        "offroad_capable": true,
+        "rough_road_score": 0.9,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.5,
+      "family_friendly_score": 0.85,
+      "city_commute_score": 0.3,
+      "road_trip_score": 0.85
+    },
+    "cargo_space": "22.3 cu ft",
+    "towing_capacity": "9520 lbs",
+    "annual_fuel_cost": 1400,
+    "annual_insurance": 831,
+    "annual_maintenance": 450,
+    "description": "Sequoia 2025 offers hybrid efficiency with 8 seats. Ideal for full size suv buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/sequoia/sequoia-2025.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/sequoia_2025.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 1,
+        "price": 65375
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 4,
+        "price": 65075
+      }
+    ]
+  },
+  {
+    "id": "corolla-hybrid-le-2024",
+    "make": "Toyota",
+    "model": "Corolla Hybrid",
+    "trim": "LE",
+    "year": 2024,
+    "specs": {
+      "body_style": "sedan",
+      "size_class": "compact_sedan",
+      "pricing": {
+        "base_msrp": 25050,
+        "msrp_range": [
+          25050,
+          35050
+        ],
+        "est_lease_monthly": 308,
+        "est_loan_monthly": 420
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 50,
+        "mpg_hwy": 53,
+        "mpg_combined": 51,
+        "est_range_miles": 714
+      },
+      "capacity": {
+        "seats": 5,
+        "rear_seat_child_seat_fit": "good",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 371,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4630,
+        "width_mm": 1780,
+        "height_mm": 1435,
+        "turning_radius_m": 5.4
+      },
+      "comfort": {
+        "ride_comfort_score": 0.8,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": true,
+        "tight_space_ok": true
+      },
+      "environment_fit": {
+        "ground_clearance_in": 5.3,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.7
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.95,
+      "family_friendly_score": 0.75,
+      "city_commute_score": 0.95,
+      "road_trip_score": 0.8
+    },
+    "cargo_space": "13.1 cu ft",
+    "towing_capacity": "N/A",
+    "annual_fuel_cost": 611,
+    "annual_insurance": 567,
+    "annual_maintenance": 470,
+    "description": "Corolla Hybrid 2024 offers hybrid efficiency with 5 seats. Ideal for compact sedan buyers.",
+    "best_for": "Commuters",
+    "image_url": "/cars/corolla/corolla-2024.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/corolla_hybrid_2024.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 10,
+        "price": 25750
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 5,
+        "price": 25450
+      }
+    ]
+  },
+  {
+    "id": "highlander-hybrid-le-2024",
+    "make": "Toyota",
+    "model": "Highlander Hybrid",
+    "trim": "LE",
+    "year": 2024,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "mid_size_suv",
+      "pricing": {
+        "base_msrp": 42420,
+        "msrp_range": [
+          42420,
+          52420
+        ],
+        "est_lease_monthly": 522,
+        "est_loan_monthly": 712
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 36,
+        "mpg_hwy": 35,
+        "mpg_combined": 35,
+        "est_range_miles": 490
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 453,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4950,
+        "width_mm": 1930,
+        "height_mm": 1730,
+        "turning_radius_m": 5.9
+      },
+      "comfort": {
+        "ride_comfort_score": 0.85,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.0,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.85,
+      "family_friendly_score": 0.95,
+      "city_commute_score": 0.55,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "16.0 cu ft",
+    "towing_capacity": "5000 lbs",
+    "annual_fuel_cost": 887,
+    "annual_insurance": 682,
+    "annual_maintenance": 470,
+    "description": "Highlander Hybrid 2024 offers hybrid efficiency with 8 seats. Ideal for mid size suv buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/highlander/highlander-2024.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/highlander_hybrid_2024.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 1,
+        "price": 43120
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 2,
+        "price": 42820
+      }
+    ]
+  },
+  {
+    "id": "highlander-hybrid-xle-2024",
+    "make": "Toyota",
+    "model": "Highlander Hybrid",
+    "trim": "XLE",
+    "year": 2024,
+    "specs": {
+      "body_style": "suv",
+      "size_class": "mid_size_suv",
+      "pricing": {
+        "base_msrp": 44920,
+        "msrp_range": [
+          44920,
+          54920
+        ],
+        "est_lease_monthly": 553,
+        "est_loan_monthly": 754
+      },
+      "powertrain": {
+        "fuel_type": "hybrid",
+        "drivetrain": "FWD",
+        "mpg_city": 36,
+        "mpg_hwy": 35,
+        "mpg_combined": 35,
+        "est_range_miles": 490
+      },
+      "capacity": {
+        "seats": 8,
+        "rear_seat_child_seat_fit": "excellent",
+        "isofix_latch_points": true,
+        "cargo_volume_l": 453,
+        "fold_flat_rear_seats": true
+      },
+      "dimensions": {
+        "length_mm": 4950,
+        "width_mm": 1930,
+        "height_mm": 1730,
+        "turning_radius_m": 5.9
+      },
+      "comfort": {
+        "ride_comfort_score": 0.85,
+        "noise_level_score": 0.8
+      },
+      "parking_tags": {
+        "city_friendly": false,
+        "tight_space_ok": false
+      },
+      "environment_fit": {
+        "ground_clearance_in": 8.0,
+        "offroad_capable": false,
+        "rough_road_score": 0.5,
+        "snow_rain_score": 0.9
+      },
+      "safety": {
+        "has_tss": true,
+        "tss_version": "3.0",
+        "airbags": 8,
+        "driver_assist": [
+          "lane_keep_assist",
+          "adaptive_cruise_control",
+          "pre_collision_system",
+          "blind_spot_monitor",
+          "rear_cross_traffic_alert"
+        ],
+        "crash_test_score": 0.95
+      }
+    },
+    "derived_scores": {
+      "eco_score": 0.85,
+      "family_friendly_score": 0.95,
+      "city_commute_score": 0.55,
+      "road_trip_score": 0.95
+    },
+    "cargo_space": "16.0 cu ft",
+    "towing_capacity": "5000 lbs",
+    "annual_fuel_cost": 887,
+    "annual_insurance": 699,
+    "annual_maintenance": 470,
+    "description": "Highlander Hybrid 2024 offers hybrid efficiency with 8 seats. Ideal for mid size suv buyers.",
+    "best_for": "Families",
+    "image_url": "/cars/highlander/highlander-2024.jpg",
+    "video_id": "demoVideoId",
+    "3d_model_url": "/models/highlander_hybrid_2024.glb",
+    "dealerInventory": [
+      {
+        "dealer": "Toyota of Plano",
+        "stock": 6,
+        "price": 45620
+      },
+      {
+        "dealer": "Richardson Toyota",
+        "stock": 2,
+        "price": 45320
+      }
+    ]
+  }
+]

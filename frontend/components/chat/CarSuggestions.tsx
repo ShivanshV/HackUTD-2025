@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Vehicle } from '@/lib/types/chat';
-import { getAllVehicles } from '@/lib/api/vehicles';
+import { getSuggestedVehicles } from '@/lib/api/vehicles';
 import styles from './CarSuggestions.module.css';
 
 interface CarSuggestionsProps {
@@ -15,40 +15,41 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails }) 
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch all vehicles in batches
+  // Fetch suggested vehicles from suggested.json
+  const fetchSuggestedVehicles = useCallback(async () => {
+    try {
+      const vehicles = await getSuggestedVehicles();
+      setSuggestedCars(vehicles);
+    } catch (err) {
+      console.error('Failed to load suggested vehicles:', err);
+      setSuggestedCars([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch suggested vehicles on mount and when cars prop changes
   useEffect(() => {
     if (!cars) {
       setLoading(true);
-      
-      // Fetch all vehicles by loading them in batches
-      const fetchAllVehicles = async () => {
-        const allVehicles: Vehicle[] = [];
-        let currentSkip = 0;
-        const batchSize = 100;
-        
-        try {
-          while (true) {
-            const batch = await getAllVehicles(currentSkip, batchSize);
-            if (batch.length === 0) break;
-            
-            allVehicles.push(...batch);
-            currentSkip += batchSize;
-            
-            // If we got less than the batch size, we've reached the end
-            if (batch.length < batchSize) break;
-          }
-          
-          setSuggestedCars(allVehicles);
-        } catch (err) {
-          console.error('Failed to load vehicles:', err);
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-      fetchAllVehicles();
+      fetchSuggestedVehicles();
+    } else {
+      // If cars are provided via prop (from chat response), use those
+      setSuggestedCars(cars);
+      setLoading(false);
     }
-  }, [cars]);
+  }, [cars, fetchSuggestedVehicles]);
+
+  // Poll for updates to suggested.json every 2 seconds
+  useEffect(() => {
+    if (!cars) {
+      const interval = setInterval(() => {
+        fetchSuggestedVehicles();
+      }, 2000); // Poll every 2 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [cars, fetchSuggestedVehicles]);
 
   // Filter cars based on search query
   const allCars = cars || suggestedCars;
@@ -91,9 +92,14 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails }) 
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <div className={styles.headerText}>
-            <h3 className={styles.title}>All Available Vehicles</h3>
+            <h3 className={styles.title}>
+              Recommended Vehicles
+            </h3>
             <p className={styles.subtitle}>
-              {displayCars.length} {displayCars.length === allCars.length ? 'Toyota vehicles' : `of ${allCars.length} vehicles`} in our catalog
+              {displayCars.length === 0
+                ? 'No recommendations yet. Start a conversation to get personalized recommendations!'
+                : `${displayCars.length} ${displayCars.length === 1 ? 'recommendation' : 'recommendations'} for you`
+              }
             </p>
           </div>
           <div className={styles.searchContainer}>
