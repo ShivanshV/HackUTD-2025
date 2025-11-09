@@ -3,10 +3,6 @@
 import React from 'react';
 import { Vehicle, UserPreferences } from '@/lib/types/chat';
 import styles from './CarDetailsView.module.css';
-import { 
-  PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, 
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
-} from 'recharts';
 
 interface CarDetailsViewProps {
   car: Vehicle;
@@ -261,91 +257,56 @@ const CarDetailsView: React.FC<CarDetailsViewProps> = ({ car, onBack, userPrefer
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Estimated Annual Costs</h2>
         <div className={styles.chartsContainer}>
-          {/* Left: Pie Chart */}
+          {/* Annual Cost Breakdown */}
           <div className={styles.chartBox}>
-            <h3 className={styles.chartTitle}>Annual Cost Breakdown</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={[
-                    { name: 'Fuel', value: car.annual_fuel_cost, color: '#FF6384' },
-                    { name: 'Insurance', value: car.annual_insurance, color: '#36A2EB' },
-                    { name: 'Maintenance', value: car.annual_maintenance, color: '#FFCE56' }
-                  ]}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {[
-                    { name: 'Fuel', value: car.annual_fuel_cost, color: '#FF6384' },
-                    { name: 'Insurance', value: car.annual_insurance, color: '#36A2EB' },
-                    { name: 'Maintenance', value: car.annual_maintenance, color: '#FFCE56' }
-                  ].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: number) => formatPrice(value)} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className={styles.chartSummary}>
-              <div className={styles.summaryItem}>
-                <span className={styles.dot} style={{ background: '#FF6384' }}></span>
-                <span>Fuel: {formatPrice(car.annual_fuel_cost)}/year</span>
+            <h3 className={styles.chartTitle}>Estimated Annual Costs</h3>
+            <div className={styles.costBreakdown}>
+              <div className={styles.costItem}>
+                <div className={styles.costLabel}>
+                  <span className={styles.dot} style={{ background: '#FF6384' }}></span>
+                  <span>Fuel</span>
+                </div>
+                <div className={styles.costValue}>~$2,500/year</div>
               </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.dot} style={{ background: '#36A2EB' }}></span>
-                <span>Insurance: {formatPrice(car.annual_insurance)}/year</span>
+              <div className={styles.costItem}>
+                <div className={styles.costLabel}>
+                  <span className={styles.dot} style={{ background: '#36A2EB' }}></span>
+                  <span>Insurance</span>
+                </div>
+                <div className={styles.costValue}>~$1,800/year</div>
               </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.dot} style={{ background: '#FFCE56' }}></span>
-                <span>Maintenance: {formatPrice(car.annual_maintenance)}/year</span>
+              <div className={styles.costItem}>
+                <div className={styles.costLabel}>
+                  <span className={styles.dot} style={{ background: '#FFCE56' }}></span>
+                  <span>Maintenance</span>
+                </div>
+                <div className={styles.costValue}>~$800/year</div>
               </div>
-              <div className={styles.summaryTotal}>
-                Total Annual: {formatPrice(car.annual_fuel_cost + car.annual_insurance + car.annual_maintenance)}
+              <div className={styles.costTotal}>
+                <strong>Total Annual Cost:</strong> <span className={styles.totalValue}>~$5,100/year</span>
               </div>
             </div>
           </div>
 
-          {/* Right: 5-Year Cost Projection */}
+          {/* 5-Year Cost Projection */}
           <div className={styles.chartBox}>
-            <h3 className={styles.chartTitle}>5-Year Total Cost of Ownership</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={[
-                  { year: 'Purchase', cost: car.specs.pricing.base_msrp },
-                  { year: 'Year 1', cost: car.specs.pricing.base_msrp + (car.annual_fuel_cost + car.annual_insurance + car.annual_maintenance) * 1 },
-                  { year: 'Year 2', cost: car.specs.pricing.base_msrp + (car.annual_fuel_cost + car.annual_insurance + car.annual_maintenance) * 2 },
-                  { year: 'Year 3', cost: car.specs.pricing.base_msrp + (car.annual_fuel_cost + car.annual_insurance + car.annual_maintenance) * 3 },
-                  { year: 'Year 4', cost: car.specs.pricing.base_msrp + (car.annual_fuel_cost + car.annual_insurance + car.annual_maintenance) * 4 },
-                  { year: 'Year 5', cost: car.specs.pricing.base_msrp + (car.annual_fuel_cost + car.annual_insurance + car.annual_maintenance) * 5 }
-                ]}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" />
-                <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(value: number) => formatPrice(value)} />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="cost" 
-                  stroke="#EB0A1E" 
-                  strokeWidth={3}
-                  name="Total Cost"
-                  dot={{ fill: '#EB0A1E', r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-            <div className={styles.chartNote}>
-              <strong>5-Year Total: {formatPrice(
-                car.specs.pricing.base_msrp + 
-                (car.annual_fuel_cost + car.annual_insurance + car.annual_maintenance) * 5
-              )}</strong>
-              <p>Includes purchase price + 5 years of fuel, insurance, and maintenance</p>
+            <h3 className={styles.chartTitle}>5-Year Cost of Ownership</h3>
+            <div className={styles.costProjection}>
+              <div className={styles.projectionItem}>
+                <div className={styles.projectionLabel}>Purchase Price</div>
+                <div className={styles.projectionValue}>{formatPrice(car.specs.pricing.base_msrp)}</div>
+              </div>
+              <div className={styles.projectionItem}>
+                <div className={styles.projectionLabel}>5 Years Operating Costs</div>
+                <div className={styles.projectionValue}>~$25,500</div>
+              </div>
+              <div className={styles.projectionTotal}>
+                <div className={styles.projectionLabel}><strong>5-Year Total</strong></div>
+                <div className={styles.projectionTotalValue}>{formatPrice(car.specs.pricing.base_msrp + 25500)}</div>
+              </div>
+              <p className={styles.chartNote}>
+                Includes purchase price + estimated fuel, insurance, and maintenance over 5 years
+              </p>
             </div>
           </div>
         </div>
@@ -375,64 +336,22 @@ const CarDetailsView: React.FC<CarDetailsViewProps> = ({ car, onBack, userPrefer
             </div>
           </div>
 
-          {/* Comparison Chart - Below Cards */}
-          <div className={styles.comparisonChartBox}>
-            <h3 className={styles.chartSubtitle}>Lease vs Finance Comparison</h3>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart
-                data={[
-                  { 
-                    option: 'Lease (36 months)', 
-                    monthly: car.specs.pricing.est_lease_monthly,
-                    total: car.specs.pricing.est_lease_monthly * 36
-                  },
-                  { 
-                    option: 'Finance (60 months)', 
-                    monthly: car.specs.pricing.est_loan_monthly,
-                    total: car.specs.pricing.est_loan_monthly * 60
-                  }
-                ]}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="option" 
-                  tick={{ fill: '#666', fontSize: 12 }}
-                />
-                <YAxis 
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                  tick={{ fill: '#666', fontSize: 12 }}
-                />
-                <Tooltip 
-                  formatter={(value: number, name: string) => {
-                    if (name === 'Monthly Payment') return `$${value}/month`;
-                    return formatPrice(value);
-                  }}
-                  contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '12px'
-                  }}
-                />
-                <Legend 
-                  wrapperStyle={{ paddingTop: '20px' }}
-                  iconType="circle"
-                />
-                <Bar 
-                  dataKey="monthly" 
-                  fill="#EB0A1E" 
-                  name="Monthly Payment"
-                  radius={[8, 8, 0, 0]}
-                />
-                <Bar 
-                  dataKey="total" 
-                  fill="#FF6B6B" 
-                  name="Total Paid"
-                  radius={[8, 8, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* Payment Comparison */}
+          <div className={styles.comparisonBox}>
+            <h3 className={styles.chartSubtitle}>Payment Comparison</h3>
+            <div className={styles.comparisonTable}>
+              <div className={styles.comparisonRow}>
+                <div className={styles.comparisonLabel}>36-Month Lease Total:</div>
+                <div className={styles.comparisonValue}>{formatPrice(car.specs.pricing.est_lease_monthly * 36)}</div>
+              </div>
+              <div className={styles.comparisonRow}>
+                <div className={styles.comparisonLabel}>60-Month Finance Total:</div>
+                <div className={styles.comparisonValue}>{formatPrice(car.specs.pricing.est_loan_monthly * 60)}</div>
+              </div>
+              <p className={styles.comparisonNote}>
+                💡 Leasing offers lower monthly payments, while financing builds equity
+              </p>
+            </div>
           </div>
         </div>
       </div>

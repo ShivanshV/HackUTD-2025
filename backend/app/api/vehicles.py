@@ -25,6 +25,7 @@ async def get_vehicle_stats():
 
 @router.get("/vehicles/search", response_model=List[Vehicle])
 async def search_vehicles(
+    model: Optional[str] = Query(None, description="Model: Camry, RAV4, Prius, etc."),
     body_style: Optional[str] = Query(None, description="Body style: sedan, suv, truck, coupe, etc."),
     fuel_type: Optional[str] = Query(None, description="Fuel type: gasoline, hybrid, electric, etc."),
     max_price: Optional[float] = Query(None, ge=0, description="Maximum price"),
@@ -40,6 +41,7 @@ async def search_vehicles(
     Apply multiple filters to find specific vehicles
     """
     vehicles = vehicle_service.find_vehicles(
+        model=model,
         body_style=body_style,
         fuel_type=fuel_type,
         max_price=max_price,

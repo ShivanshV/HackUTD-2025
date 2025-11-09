@@ -38,6 +38,7 @@ class VehicleService:
 
     def find_vehicles(
         self,
+        model: Optional[str] = None,
         body_style: Optional[str] = None,
         fuel_type: Optional[str] = None,
         max_price: Optional[float] = None,
@@ -51,6 +52,13 @@ class VehicleService:
         This is where your AI agent's tools will call to find cars
         """
         filtered_cars = self.cars_data
+
+        # Filter by model
+        if model:
+            filtered_cars = [
+                car for car in filtered_cars
+                if car.get("model", "").lower() == model.lower()
+            ]
 
         # Filter by body style
         if body_style:
