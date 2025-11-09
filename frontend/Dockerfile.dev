@@ -4,11 +4,12 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and .npmrc
 COPY package*.json ./
+COPY .npmrc ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
+# Install dependencies (legacy-peer-deps configured in .npmrc for React 19 compatibility)
+RUN npm install
 
 # Copy application code (will be overridden by volume in docker-compose)
 COPY . .

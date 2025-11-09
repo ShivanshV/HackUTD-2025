@@ -4,18 +4,22 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Copy package files
+# Copy package files and .npmrc
 COPY package*.json ./
+COPY .npmrc ./
 
-# Install dependencies
+# Install dependencies (legacy-peer-deps configured in .npmrc for React 19 compatibility)
 RUN npm ci --only=production
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy package files and install all dependencies (including dev)
+# Copy package files and .npmrc
 COPY package*.json ./
+COPY .npmrc ./
+
+# Install all dependencies (including dev) - legacy-peer-deps configured in .npmrc
 RUN npm ci
 
 # Copy source code
