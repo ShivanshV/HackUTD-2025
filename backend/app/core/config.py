@@ -16,9 +16,8 @@ class Settings(BaseSettings):
     MODEL_TEMPERATURE: float = 0.7
     MAX_TOKENS: int = 1000
     
-    # API Keys (optional - add when you have them)
-    # NEMOTRON_API_KEY: str = ""
-    # OPENAI_API_KEY: str = ""
+    # API Keys
+    NEMOTRON_API_KEY: str = ""
     
     class Config:
         env_file = ".env"
