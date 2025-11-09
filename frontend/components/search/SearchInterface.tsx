@@ -39,15 +39,20 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({ onSearch, onCatalogSe
   ];
 
   const handleSearch = () => {
+    console.log('🔍 SearchInterface handleSearch called, searchMode:', searchMode);
     if (searchMode === 'smart' && onSearch) {
       onSearch(searchQuery, activeFilters);
     } else if (searchMode === 'catalog' && onCatalogSearch) {
-      onCatalogSearch({
+      const filters = {
         status: catalogStatus,
         model: catalogModel,
         bodyStyle: catalogBodyStyle,
         zipCode: zipCode
-      });
+      };
+      console.log('📋 Calling onCatalogSearch with filters:', filters);
+      onCatalogSearch(filters);
+    } else {
+      console.warn('⚠️ No search handler available for mode:', searchMode);
     }
   };
 

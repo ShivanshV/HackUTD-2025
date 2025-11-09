@@ -15,17 +15,120 @@ interface ChatInterfaceProps {
   initialQuery?: string;
 }
 
+const STORAGE_KEY = 'toyota_chat_session';
+
+interface StoredChatSession {
+  chatHistory: ChatMessage[];
+  recommendedCarIds: string[];
+  zipCode: string;
+  hasInitialized: boolean;
+}
+
 export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfaceProps = {}) {
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
   const [selectedCar, setSelectedCar] = useState<Vehicle | null>(null);
   const [loadingCarDetails, setLoadingCarDetails] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
   const [recommendedCars, setRecommendedCars] = useState<Vehicle[]>([])
+  const [recommendedCarIds, setRecommendedCarIds] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [zipCode, setZipCode] = useState('75080')
   const [hasInitialized, setHasInitialized] = useState(false)
+  const [isRestored, setIsRestored] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatHistoryRef = useRef<ChatMessage[]>([])
+  
+  // Restore chat session from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const session: StoredChatSession = JSON.parse(stored);
+        
+        // Restore chat history (convert timestamp strings back to Date objects)
+        if (session.chatHistory && session.chatHistory.length > 0) {
+          const restoredHistory = session.chatHistory.map(msg => ({
+            ...msg,
+            timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
+          }));
+          setChatHistory(restoredHistory);
+          chatHistoryRef.current = restoredHistory;
+          console.log('✅ Restored chat history from session:', restoredHistory.length, 'messages');
+        }
+        
+        // Restore recommended car IDs
+        if (session.recommendedCarIds && session.recommendedCarIds.length > 0) {
+          setRecommendedCarIds(session.recommendedCarIds);
+          // Fetch car details for recommended IDs
+          const carPromises = session.recommendedCarIds.map(id => 
+            getVehicleById(id).catch(err => {
+              console.error(`Failed to fetch car ${id}:`, err)
+              return null
+            })
+          );
+          Promise.all(carPromises).then(cars => {
+            const validCars = cars.filter((car): car is Vehicle => car !== null);
+            setRecommendedCars(validCars);
+            console.log('✅ Restored recommended cars:', validCars.length);
+          });
+        }
+        
+        // Restore zip code
+        if (session.zipCode) {
+          setZipCode(session.zipCode);
+        }
+        
+        // Restore initialization state
+        if (session.hasInitialized) {
+          setHasInitialized(true);
+        }
+        
+        setIsRestored(true);
+      } else {
+        setIsRestored(true);
+      }
+    } catch (error) {
+      console.error('Failed to restore chat session:', error);
+      setIsRestored(true);
+    }
+  }, []);
+
+  // Save chat session to sessionStorage whenever it changes
+  useEffect(() => {
+    if (isRestored) {
+      try {
+        const session: StoredChatSession = {
+          chatHistory,
+          recommendedCarIds,
+          zipCode,
+          hasInitialized
+        };
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+        console.log('💾 Saved chat session to storage');
+      } catch (error) {
+        console.error('Failed to save chat session:', error);
+      }
+    }
+  }, [chatHistory, recommendedCarIds, zipCode, hasInitialized, isRestored]);
+
+  // Clear session storage when user clicks "New search"
+  const handleNewSearch = () => {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+      // Clear the reload check flag so reload detection can run again if needed
+      sessionStorage.removeItem('toyota_reload_checked_v2');
+      // Clear suggested.json when user explicitly starts a new search
+      import('@/lib/api/vehicles').then(({ clearSuggestedVehicles }) => {
+        clearSuggestedVehicles().catch(console.error);
+      });
+      console.log('🗑️ Cleared chat session and suggested.json (user clicked "New search")');
+    } catch (error) {
+      console.error('Failed to clear chat session:', error);
+    }
+    if (onNewSearch) {
+      onNewSearch();
+    }
+  };
   
   // Keep ref in sync with state
   useEffect(() => {
@@ -40,63 +143,6 @@ export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfa
     scrollToBottom()
   }, [chatHistory])
 
-  // Automatically send initial message if provided (only once)
-  useEffect(() => {
-    if (initialMessage && initialMessage.trim() && !hasSentInitialMessage && !isLoading) {
-      console.log('🚀 Initial message detected:', initialMessage);
-      setHasSentInitialMessage(true);
-      
-      // Send message directly using current chatHistory from ref
-      const sendInitial = async () => {
-        const userMessage: ChatMessage = {
-          role: 'user',
-          content: initialMessage.trim(),
-          timestamp: new Date(),
-        }
-        
-        const currentHistory = chatHistoryRef.current;
-        const updatedHistory = [...currentHistory, userMessage]
-        console.log('💬 Sending initial message, history length:', updatedHistory.length);
-        setChatHistory(updatedHistory)
-        setIsLoading(true)
-        
-        try {
-          console.log('🌐 Calling API with', updatedHistory.length, 'messages');
-          const response = await sendChatMessage(updatedHistory)
-          console.log('✅ Received response:', {
-            contentLength: response.content?.length,
-            recommendedCount: response.recommended_car_ids?.length || 0
-          });
-          
-          if (response.recommended_car_ids && response.recommended_car_ids.length > 0) {
-            console.log('🚗 Setting recommended cars:', response.recommended_car_ids);
-            setRecommendedCarIds(response.recommended_car_ids);
-          }
-          
-          const agentMessage: ChatMessage = {
-            role: 'agent',
-            content: response.content,
-            timestamp: new Date(),
-          }
-          
-          setChatHistory([...updatedHistory, agentMessage])
-        } catch (error) {
-          console.error('❌ Error sending initial message:', error);
-          const errorMessage: ChatMessage = {
-            role: 'agent',
-            content: "I'm sorry, I'm having trouble connecting right now. Please try again.",
-            timestamp: new Date(),
-          }
-          setChatHistory([...updatedHistory, errorMessage])
-        } finally {
-          setIsLoading(false)
-        }
-      }
-      
-      // Small delay to ensure component is fully mounted
-      setTimeout(sendInitial, 100);
-    }
-  }, [initialMessage, hasSentInitialMessage, isLoading])
 
   // Fetch car details when a car is selected
   useEffect(() => {
@@ -159,6 +205,7 @@ export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfa
       // Handle recommended car IDs
       if (response.recommended_car_ids && response.recommended_car_ids.length > 0) {
         console.log('Received recommended car IDs:', response.recommended_car_ids)
+        setRecommendedCarIds(response.recommended_car_ids)
         // Fetch car details for recommended IDs
         const carPromises = response.recommended_car_ids.map(id => 
           getVehicleById(id).catch(err => {
@@ -173,6 +220,7 @@ export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfa
       } else {
         console.log('No recommended car IDs in response')
         // Clear recommendations if none provided
+        setRecommendedCarIds([])
         setRecommendedCars([])
       }
     } catch (error) {
@@ -189,13 +237,19 @@ export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfa
     }
   }, [isLoading])
 
-  // Send initial query when component mounts
+  // Send initial query when component mounts (only if not restored from storage and no existing history)
   useEffect(() => {
-    if (initialQuery && !hasInitialized) {
-      setHasInitialized(true)
-      handleSendMessage(initialQuery)
+    // Only send initial query if:
+    // 1. Session has been restored (so we know if there's stored data)
+    // 2. There's an initial query provided
+    // 3. We haven't initialized yet
+    // 4. There's no existing chat history (either restored or new)
+    if (isRestored && initialQuery && !hasInitialized && chatHistory.length === 0) {
+      console.log('📤 Sending initial query:', initialQuery);
+      setHasInitialized(true);
+      handleSendMessage(initialQuery);
     }
-  }, [initialQuery, hasInitialized, handleSendMessage])
+  }, [initialQuery, hasInitialized, isRestored, chatHistory.length, handleSendMessage])
 
   const quickSuggestions = [
     'Electric cars under $50k',
@@ -239,7 +293,7 @@ export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfa
       {/* Chat Area - 60% */}
       <div className={styles.chatSection}>
         <div className={styles.chatHeader}>
-          <button className={styles.newSearchBtn} onClick={onNewSearch}>
+          <button className={styles.newSearchBtn} onClick={handleNewSearch}>
             <span className={styles.backArrow}>←</span> New search
           </button>
           <div className={styles.zipCode}>
@@ -303,7 +357,8 @@ export default function ChatInterface({ onNewSearch, initialQuery }: ChatInterfa
       <div className={styles.suggestionsSection}>
         <CarSuggestions 
           cars={recommendedCars.length > 0 ? recommendedCars : undefined}
-          onViewDetails={(carId) => setSelectedCarId(carId)} 
+          onViewDetails={(carId) => setSelectedCarId(carId)}
+          recommendedCarIds={recommendedCarIds}
         />
       </div>
     </div>

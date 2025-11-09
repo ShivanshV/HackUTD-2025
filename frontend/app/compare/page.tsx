@@ -4,15 +4,19 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/ui/Header';
 import { Vehicle } from '@/lib/types/chat';
-import { getAllVehicles } from '@/lib/api/vehicles';
+import { getAllVehicles, getSuggestedVehicles } from '@/lib/api/vehicles';
 import styles from './page.module.css';
+
+type ViewMode = 'all' | 'suggested';
 
 export default function ComparePage() {
   const router = useRouter();
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
+  const [suggestedVehicles, setSuggestedVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicles, setSelectedVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [reportOptions, setReportOptions] = useState({
     pricing: true,
     performance: true,
@@ -49,6 +53,25 @@ export default function ComparePage() {
     fetchVehicles();
   }, []);
 
+  // Fetch suggested vehicles
+  useEffect(() => {
+    const fetchSuggested = async () => {
+      try {
+        const vehicles = await getSuggestedVehicles();
+        setSuggestedVehicles(vehicles);
+      } catch (err) {
+        console.error('Failed to load suggested vehicles:', err);
+        setSuggestedVehicles([]);
+      }
+    };
+
+    fetchSuggested();
+    
+    // Poll for updates every 2 seconds
+    const interval = setInterval(fetchSuggested, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleVehicleSelect = (vehicle: Vehicle) => {
     if (selectedVehicles.find(v => v.id === vehicle.id)) {
       setSelectedVehicles(selectedVehicles.filter(v => v.id !== vehicle.id));
@@ -57,7 +80,10 @@ export default function ComparePage() {
     }
   };
 
-  const filteredVehicles = allVehicles.filter((vehicle) => {
+  // Determine which vehicles to display based on view mode
+  const vehiclesToDisplay = viewMode === 'suggested' ? suggestedVehicles : allVehicles;
+
+  const filteredVehicles = vehiclesToDisplay.filter((vehicle) => {
     if (!searchQuery.trim()) return true;
     const searchLower = searchQuery.toLowerCase();
     const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`.toLowerCase();
@@ -423,15 +449,31 @@ export default function ComparePage() {
         )}
 
         <div className={styles.selectionSection}>
-          <div className={styles.searchContainer}>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Search vehicles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <span className={styles.searchIcon}>🔍</span>
+          <div className={styles.searchRow}>
+            <div className={styles.searchContainer}>
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search vehicles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <span className={styles.searchIcon}>🔍</span>
+            </div>
+            <div className={styles.toggleContainer}>
+              <button
+                className={`${styles.toggleButton} ${viewMode === 'all' ? styles.toggleActive : ''}`}
+                onClick={() => setViewMode('all')}
+              >
+                All
+              </button>
+              <button
+                className={`${styles.toggleButton} ${viewMode === 'suggested' ? styles.toggleActive : ''}`}
+                onClick={() => setViewMode('suggested')}
+              >
+                Suggested
+              </button>
+            </div>
           </div>
 
           <div className={styles.vehicleGrid}>

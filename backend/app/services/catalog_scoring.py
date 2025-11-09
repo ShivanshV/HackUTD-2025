@@ -59,8 +59,31 @@ class CatalogScoringService:
             List of scored cars with reasons
         """
         scored_cars = []
+        preferred_vehicle_type = user_profile.get("vehicle_type", "").lower()
         
         for car in self.cars:
+            # STRICT FILTERING: If vehicle_type is specified, filter out non-matching vehicles BEFORE scoring
+            # This ensures that if user wants SUV, we ONLY show SUVs (no sedans, no trucks, etc.)
+            if preferred_vehicle_type:
+                body_style = self._get_body_style(car).lower()
+                matches_type = False
+                
+                if preferred_vehicle_type == "suv":
+                    matches_type = body_style in ["suv", "crossover"]
+                elif preferred_vehicle_type == "sedan":
+                    matches_type = body_style in ["sedan", "hatchback"]
+                elif preferred_vehicle_type == "truck":
+                    matches_type = body_style == "truck"
+                elif preferred_vehicle_type == "van":
+                    matches_type = body_style in ["van", "minivan"]
+                else:
+                    matches_type = body_style == preferred_vehicle_type
+                
+                # Skip vehicles that don't match the preferred type
+                if not matches_type:
+                    continue  # Don't score or include this car at all
+            
+            # Only score vehicles that match the type (or if no type specified, score all)
             score, reasons = self._score_single_car(car, user_profile)
             scored_cars.append({
                 "id": car["id"],
@@ -72,12 +95,25 @@ class CatalogScoringService:
         # Sort by score descending, then by year descending (newest first) as tiebreaker
         scored_cars.sort(key=lambda x: (x["score"], x["year"]), reverse=True)
         
+        print(f"📊 Scored {len(scored_cars)} cars (filtered by vehicle_type={preferred_vehicle_type if preferred_vehicle_type else 'none'})")
         return scored_cars
     
     def _get_weights(self, profile: Dict[str, Any]) -> Dict[str, float]:
         """Get weights from profile or use defaults"""
         custom_weights = profile.get("weights") or {}
         weights = self.DEFAULT_WEIGHTS.copy()
+        
+        # If vehicle_type is specified, increase its weight significantly
+        # This ensures vehicle type matching is prioritized
+        if profile.get("vehicle_type"):
+            # Increase vehicle_type weight to 0.30 (from 0.10)
+            # Reduce other weights proportionally to maintain sum ~1.0
+            weights["vehicle_type"] = 0.30
+            # Reduce other weights slightly
+            for key in weights:
+                if key != "vehicle_type":
+                    weights[key] = weights[key] * 0.875  # Scale down by ~12.5%
+        
         if custom_weights:
             weights.update(custom_weights)
         return weights
@@ -345,9 +381,27 @@ class CatalogScoringService:
         has_children = profile.get("has_children", False)
         terrain = profile.get("terrain", "mixed")
         needs_ground_clearance = profile.get("needs_ground_clearance", False)
-        body_style = self._get_body_style(car)
+        preferred_vehicle_type = profile.get("vehicle_type", "").lower()  # User's preferred vehicle type
+        body_style = self._get_body_style(car).lower()
         seats = self._get_seating(car)
         ground_clearance = self._get_ground_clearance(car)
+        
+        # If user specified a preferred vehicle type, STRICTLY prioritize matching it
+        # This is critical - if user wants SUV, we should NOT show sedans
+        if preferred_vehicle_type:
+            if body_style == preferred_vehicle_type:
+                reasons.append(f"matches_preferred_{preferred_vehicle_type}")
+                return (1.0, reasons)
+            elif preferred_vehicle_type == "suv" and body_style in ["suv", "crossover"]:
+                reasons.append("matches_preferred_suv")
+                return (1.0, reasons)
+            elif preferred_vehicle_type == "sedan" and body_style in ["sedan", "hatchback"]:
+                reasons.append("matches_preferred_sedan")
+                return (0.9, reasons)
+            else:
+                # Doesn't match preferred type - VERY LOW score to ensure non-matching vehicles are filtered out
+                # Return 0.0 or very low score so they don't appear in recommendations
+                return (0.0, reasons)  # Changed from 0.3 to 0.0 to completely filter out non-matching types
         
         # Handle ground clearance needs (potholes, speed bumps, rough roads)
         if needs_ground_clearance or terrain == "rough_city":
@@ -383,6 +437,16 @@ class CatalogScoringService:
                     return (0.8, reasons)
                 else:
                     return (0.5, reasons)
+            elif terrain == "highway":
+                # For highway driving, prioritize fuel efficiency (sedans, hybrids) but also consider comfort (SUVs)
+                if body_style in ["sedan", "hatchback"]:
+                    reasons.append("efficient_highway_choice")
+                    return (0.9, reasons)
+                elif body_style in ["suv"]:
+                    reasons.append("comfortable_highway_choice")
+                    return (0.85, reasons)
+                else:
+                    return (0.7, reasons)
             elif body_style in ["sedan", "hatchback"]:
                 reasons.append("efficient_choice")
                 return (0.9, reasons)
@@ -462,6 +526,11 @@ class CatalogScoringService:
             if "hybrid" in wanted_lower and self._get_fuel_type(car) in ["hybrid", "plug_in_hybrid"]:
                 matches += 1
                 reasons.append("eco_friendly")
+            
+            # Check fuel type for electric
+            if "electric" in wanted_lower and self._get_fuel_type(car) in ["electric", "plug_in_hybrid"]:
+                matches += 1
+                reasons.append("fully_electric")
         
         if len(features_wanted) > 0:
             match_ratio = matches / len(features_wanted)

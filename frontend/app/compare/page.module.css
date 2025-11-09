@@ -110,25 +110,28 @@
   border-radius: 12px;
   padding: 24px;
   position: relative;
+  overflow: visible;
 }
 
 .removeButton {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 8px;
+  right: 8px;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background: #EB0A1E;
   color: white;
-  border: none;
-  font-size: 24px;
+  border: 2px solid white;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .removeButton:hover {
@@ -403,10 +406,24 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
+.searchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
 .searchContainer {
   position: relative;
-  margin-bottom: 24px;
+  flex: 1;
+  min-width: 300px;
   max-width: 500px;
+}
+
+.searchRow .toggleContainer {
+  margin-left: auto;
 }
 
 .searchInput {
@@ -436,6 +453,45 @@
   font-size: 18px;
   pointer-events: none;
   opacity: 0.5;
+}
+
+.toggleContainer {
+  display: flex;
+  gap: 0;
+  background: #f0f0f0;
+  border-radius: 10px;
+  padding: 4px;
+  border: 2px solid #e5e5e5;
+}
+
+.toggleButton {
+  padding: 10px 24px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+
+.toggleButton:hover {
+  color: #EB0A1E;
+  background: rgba(235, 10, 30, 0.1);
+}
+
+.toggleButton.toggleActive {
+  background: #EB0A1E;
+  color: white;
+  box-shadow: 0 2px 8px rgba(235, 10, 30, 0.3);
+}
+
+.toggleButton.toggleActive:hover {
+  background: #C40818;
+  color: white;
 }
 
 .vehicleGrid {
@@ -544,6 +600,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  z-index: 1;
 }
 
 .comparisonImage {
@@ -637,6 +694,24 @@
 
   .selectionSection {
     padding: 20px;
+  }
+
+  .searchRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchContainer {
+    max-width: 100%;
+  }
+
+  .toggleContainer {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .toggleButton {
+    flex: 1;
   }
 
   .vehicleGrid {

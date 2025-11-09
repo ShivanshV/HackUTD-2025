@@ -45,6 +45,7 @@ class VehicleService:
         min_mpg: Optional[int] = None,
         min_seating: Optional[int] = None,
         year: Optional[int] = None,
+        condition: Optional[str] = None,
     ) -> List[Vehicle]:
         """
         Filter vehicles based on criteria
@@ -101,6 +102,25 @@ class VehicleService:
                 car for car in filtered_cars
                 if car.get("year") == year
             ]
+
+        # Filter by condition
+        if condition:
+            # Map frontend status values to actual condition values in the data
+            # The data has conditions: "New" and "Used"
+            condition_map = {
+                "Used": "Used",
+                "New": "New",
+                "Certified Pre-Owned": "Used"  # CPO is also treated as used
+            }
+            target_condition = condition_map.get(condition, condition)
+            
+            # Filter cars by condition (case-insensitive comparison for robustness)
+            filtered_cars = [
+                car for car in filtered_cars
+                if car.get("condition", "").strip().lower() == target_condition.strip().lower()
+            ]
+            
+            print(f"🔍 Filtering by condition: '{condition}' -> '{target_condition}', found {len(filtered_cars)} cars")
 
         return [Vehicle(**car) for car in filtered_cars]
 

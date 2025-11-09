@@ -33,35 +33,17 @@
   transform: translateY(-1px);
 }
 
-.logoBox {
-  width: 56px;
-  height: 44px;
-  background: #EB0A1E;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
+.logoImage {
+  height: 40px;
+  width: auto;
+  display: block;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.logoContainer:hover .logoBox {
-  background: #C40818;
-  box-shadow: 0 2px 8px rgba(235, 10, 30, 0.3);
-}
-
-.logoIcon {
-  width: 40px;
-  height: 32px;
-}
-
-.logoText {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #000000;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1;
-  text-transform: uppercase;
+.logoContainer:hover .logoImage {
+  transform: scale(1.05);
+  filter: brightness(0.9);
 }
 
 .navigation {
@@ -152,19 +134,8 @@
     gap: 16px;
   }
 
-  .logoBox {
-    width: 42px;
-    height: 34px;
-  }
-
-  .logoIcon {
-    width: 30px;
-    height: 24px;
-  }
-
-  .logoText {
-    font-size: 20px;
-    letter-spacing: 1.2px;
+  .logoImage {
+    height: 32px;
   }
 
   .navigation {

@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styles from './CatalogResults.module.css';
+import CarDetailsView from '../chat/CarDetailsView';
+import { Vehicle } from '@/lib/types/chat';
+import { getVehicleById } from '@/lib/api/vehicles';
 
 interface CatalogFilters {
   status: string;
@@ -45,55 +48,11 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('price-low');
+  const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
+  const [selectedCar, setSelectedCar] = useState<Vehicle | null>(null);
+  const [loadingCarDetails, setLoadingCarDetails] = useState(false);
 
-  // Fetch cars from backend based on filters
-  React.useEffect(() => {
-    const fetchCars = async () => {
-      setLoading(true);
-      
-      try {
-        // Build query parameters
-        const params = new URLSearchParams();
-        
-        if (filters.model !== 'All Toyota Models') {
-          params.append('model', filters.model);
-        }
-        if (filters.bodyStyle !== 'All Body Styles') {
-          params.append('body_style', filters.bodyStyle.toLowerCase());
-        }
-        
-        // Add limit to get more results
-        params.append('limit', '300');
-        
-        // Fetch from backend API using search endpoint
-        const response = await fetch(`http://localhost:8000/api/vehicles/search?${params.toString()}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch vehicles');
-        }
-        
-        let data = await response.json();
-        
-        // Filter by condition based on status filter
-        if (filters.status === 'Used') {
-          data = data.filter((car: Car) => car.condition === 'Used - Like New');
-        } else if (filters.status === 'New') {
-          data = data.filter((car: Car) => car.condition === 'New');
-        }
-        
-        setCars(data);
-      } catch (error) {
-        console.error('Error fetching cars:', error);
-        // Fallback to empty array if API fails
-        setCars([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCars();
-  }, [filters]);
-
+  // Define helper functions BEFORE hooks (they're not hooks, but good practice)
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -103,8 +62,79 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
     }).format(price);
   };
 
-  // Sort cars based on selected option
-  const sortedCars = React.useMemo(() => {
+  // Fetch cars from backend based on filters
+  useEffect(() => {
+    const fetchCars = async () => {
+      setLoading(true);
+      console.log('🔄 CatalogResults: Fetching cars with filters:', filters);
+      
+      try {
+        // Build query parameters
+        const params = new URLSearchParams();
+        
+        if (filters.model && filters.model !== 'All Toyota Models') {
+          params.append('model', filters.model);
+        }
+        if (filters.bodyStyle && filters.bodyStyle !== 'All Body Styles') {
+          params.append('body_style', filters.bodyStyle.toLowerCase());
+        }
+        
+        // Add condition filter to backend query
+        if (filters.status && filters.status !== 'All') {
+          params.append('condition', filters.status);
+          console.log('🔍 Adding condition filter:', filters.status);
+        }
+        
+        // Add limit to get more results
+        params.append('limit', '300');
+        
+        // Fetch from backend API using search endpoint
+        // Use the API client from lib/api/vehicles for consistent API base URL
+        const apiBaseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8000';
+        const url = `${apiBaseUrl}/api/vehicles/search?${params.toString()}`;
+        console.log('📡 Fetching from URL:', url);
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch vehicles: ${response.status} ${response.statusText}`);
+        }
+        
+        const data: Vehicle[] = await response.json();
+        console.log(`✅ Received ${data.length} cars from API`);
+        // Convert Vehicle[] to Car[] format (they're compatible, but we can type cast)
+        setCars(data as any as Car[]);
+      } catch (error) {
+        console.error('❌ Error fetching cars:', error);
+        // Fallback to empty array if API fails
+        setCars([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, [filters.status, filters.model, filters.bodyStyle, filters.zipCode]); // Use individual filter properties for dependency
+
+  // Fetch car details when a car is selected
+  useEffect(() => {
+    if (selectedCarId) {
+      setLoadingCarDetails(true);
+      getVehicleById(selectedCarId)
+        .then((car) => {
+          setSelectedCar(car);
+          setLoadingCarDetails(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching car details:', error);
+          setLoadingCarDetails(false);
+          setSelectedCarId(null);
+        });
+    }
+  }, [selectedCarId]);
+
+  // Sort cars based on selected option (useMemo hook)
+  const sortedCars = useMemo(() => {
     const sorted = [...cars];
     
     switch (sortBy) {
@@ -123,6 +153,46 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
     }
   }, [cars, sortBy]);
 
+  // Event handlers (defined after hooks but before conditional returns)
+  const handleViewDetails = (carId: string) => {
+    console.log('🔍 View details clicked for car ID:', carId);
+    setSelectedCarId(carId);
+  };
+
+  const handleBackFromDetails = () => {
+    setSelectedCarId(null);
+    setSelectedCar(null);
+  };
+
+  // Conditional returns - MUST be after all hooks
+  // Show loading state while fetching car details
+  if (loadingCarDetails) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <p>Loading vehicle details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show car details if a car is selected and loaded
+  if (selectedCarId && selectedCar) {
+    return (
+      <CarDetailsView 
+        car={selectedCar} 
+        onBack={handleBackFromDetails}
+        userPreferences={{
+          hasFamily: true,
+          longCommute: true,
+          ecoConscious: true,
+          cityDriver: false
+        }}
+      />
+    );
+  }
+
   return (
     <div className={styles.container}>
       {/* Header with filters summary */}
@@ -135,7 +205,11 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
             {filters.model !== 'All Toyota Models' ? filters.model : 'All Models'}
           </h1>
           <p className={styles.subtitle}>
-            {filters.status} • {filters.bodyStyle} • Near {filters.zipCode}
+            <span>{filters.status}</span>
+            <span>•</span>
+            <span>{filters.bodyStyle}</span>
+            <span>•</span>
+            <span>Near {filters.zipCode}</span>
           </p>
         </div>
       </div>
@@ -232,7 +306,10 @@ const CatalogResults: React.FC<CatalogResultsProps> = ({ filters, onBackToSearch
                 </div>
 
                 <div className={styles.cardActions}>
-                  <button className={styles.viewDetailsBtn}>
+                  <button 
+                    className={styles.viewDetailsBtn}
+                    onClick={() => handleViewDetails(car.id)}
+                  >
                     View Details
                   </button>
                   <button className={styles.compareBtn}>

@@ -87,7 +87,18 @@ export async function getSuggestedVehicles(): Promise<Vehicle[]> {
     return response.data;
   } catch (error) {
     console.error('Error fetching suggested vehicles:', error);
-    throw new Error('Failed to fetch suggested vehicles');
+    return []; // Return empty array on error instead of throwing
+  }
+}
+
+// Clear suggested vehicles (e.g., on page reload)
+export async function clearSuggestedVehicles(): Promise<void> {
+  try {
+    await apiClient.post('/api/vehicles/suggested/clear');
+    console.log('✅ Cleared suggested vehicles');
+  } catch (error) {
+    console.error('Error clearing suggested vehicles:', error);
+    // Don't throw - this is not critical
   }
 }
 

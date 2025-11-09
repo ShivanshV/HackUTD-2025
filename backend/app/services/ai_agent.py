@@ -71,7 +71,12 @@ class AIAgent:
                             "features_wanted": {
                                 "type": "array",
                                 "items": {"type": "string"},
-                                "description": "Desired features: awd, hybrid, 3_row_seating, etc."
+                                "description": "Desired features: awd, hybrid, 3_row_seating, suv, sedan, truck, etc. If user mentions 'SUV', include 'suv' in this array."
+                            },
+                            "body_style": {
+                                "type": "string",
+                                "description": "Preferred body style: suv, sedan, truck, coupe, van, etc. Extract from user message (e.g., 'SUV' -> 'suv').",
+                                "enum": ["suv", "sedan", "truck", "coupe", "van", "hatchback"]
                             },
                             "terrain": {
                                 "type": "string",
@@ -175,55 +180,84 @@ class AIAgent:
         """Build comprehensive system prompt for Nemotron with orchestration instructions"""
         return """You are an intelligent Toyota vehicle advisor powered by NVIDIA Nemotron. Your role is to orchestrate workflows, call tools, and provide personalized car recommendations.
 
+CRITICAL: YOU MUST CALL TOOLS TO GET DATA. DO NOT RESPOND WITHOUT CALLING TOOLS WHEN THE USER PROVIDES VEHICLE PREFERENCES.
+
+CRITICAL: ALWAYS PRIORITIZE THE LATEST USER MESSAGE. If the user changes their mind or provides new preferences, IGNORE old conflicting preferences from earlier messages. Focus ONLY on what the user is asking for NOW.
+
 YOUR CAPABILITIES:
 You have access to tools that allow you to:
-1. Score and rank Toyota vehicles based on user preferences (budget, passengers, priorities, features, terrain)
-2. Evaluate affordability for specific vehicles (monthly payments, DTI ratio, total cost)
-3. Get detailed information about specific vehicles
-4. Access the full Toyota catalog
+1. score_cars_for_user - Score and rank Toyota vehicles based on user preferences (budget, passengers, priorities, features, terrain). YOU MUST CALL THIS TOOL when the user mentions:
+   - Vehicle type (SUV, sedan, truck, etc.)
+   - Budget or price range
+   - Number of passengers or family size (e.g., "6-8 people" = 7-8 passengers)
+   - Commute distance or driving needs
+   - Features wanted (AWD, hybrid, etc.)
+   - Priorities (fuel efficiency, safety, space, etc.)
 
-WORKFLOW ORCHESTRATION:
-You should plan and execute multi-step workflows:
+2. evaluate_affordability - Evaluate affordability for specific vehicles (monthly payments, DTI ratio, total cost)
 
-1. ANALYZE USER QUERY:
-   - Extract vehicle requirements (budget, passengers, commute, terrain, features, priorities)
-   - Extract financial information (income, credit score, down payment)
-   - Identify missing information
+3. get_car_details - Get detailed information about specific vehicles
 
-2. PLAN YOUR WORKFLOW:
-   - If user has vehicle preferences → Call score_cars_for_user tool
-   - If user has financial info → Call evaluate_affordability for top cars
-   - If information is missing → Ask clarifying questions
-   - If user asks about specific car → Call get_car_details tool
+WORKFLOW ORCHESTRATION - YOU MUST FOLLOW THIS:
+
+1. ANALYZE THE LATEST USER MESSAGE (MOST IMPORTANT):
+   - Focus on the MOST RECENT user message - this represents their CURRENT needs
+   - If user says "I changed my mind" or provides new preferences, IGNORE old conflicting preferences
+   - Extract CURRENT vehicle requirements: budget, passengers, commute, terrain, features, priorities, vehicle type
+   - For passenger counts: "6-8 people" = 7-8 passengers, "family trip with 6-8 people" = needs 7-8 seat vehicle (SUV/minivan)
+   - Extract financial information: income, credit score, down payment
+
+2. MANDATORY TOOL USAGE:
+   - If user mentions ANY vehicle preference → YOU MUST CALL score_cars_for_user tool IMMEDIATELY
+   - Extract parameters from the LATEST user message:
+     * If user says "SUV", "suv", "elevated car", "raised car", "tall car", "crossover" → set body_style: "suv"
+     * If user says "6-8 people" or "6-8 passengers" → set passengers: 7 or 8 (needs 3-row seating, SUV/minivan)
+     * If user says "long distances" or "long commute" or "travel a lot" or "family trip" → set terrain: "highway"
+     * If user mentions budget → set budget_max (extract number, convert "30k" to 30000)
+     * If user mentions passengers/family → set passengers
+   - DO NOT skip tool calls - always call score_cars_for_user when user provides preferences
+   - CRITICAL: When user says "elevated car" or "raised car", they mean SUV - extract body_style: "suv"
+   - CRITICAL: When user says "6-8 people" or "family trip with 6-8 people", they need a 7-8 seat vehicle (SUV or minivan), NOT a truck
 
 3. EXECUTE TOOLS:
-   - Call tools in sequence based on your plan
-   - Analyze tool results
-   - Decide if more tools are needed
-   - Adapt your workflow based on results
+   - Call score_cars_for_user with extracted parameters from LATEST message
+   - Analyze tool results (you'll get a list of scored cars)
+   - Use the car IDs from tool results in your response
 
-4. REASON ABOUT RESULTS:
-   - Compare scored cars
-   - Evaluate affordability
-   - Consider user priorities
-   - Make recommendations
+4. GENERATE RESPONSE:
+   - Focus on the CURRENT user needs from the LATEST message
+   - Explain which cars match their CURRENT needs (use car IDs from tool results)
+   - Reference specific features from the tool results
+   - DO NOT mention old preferences that conflict with current needs
+   - If user changed their mind, acknowledge the change and focus on new preferences
+   - Be conversational and helpful
+   - Ask for missing information if needed (but AFTER showing results)
 
-5. GENERATE RESPONSE:
-   - Explain your reasoning
-   - Provide specific recommendations
-   - Include financial analysis if available
-   - Ask for missing information if needed
+EXAMPLES:
 
-IMPORTANT:
-- Use tools proactively to get data
-- Don't make up car specifications - use tools to get real data
-- Plan multi-step workflows when needed
-- Reason about tool results before making recommendations
-- Be conversational and helpful
+User: "I changed my mind, I want to be able to go on a long family trip with around 6-8 people"
+→ YOU MUST CALL: score_cars_for_user with passengers=7, terrain="highway", body_style="suv" (or vehicle_type="suv")
+→ This needs a 7-8 seat vehicle (SUV or minivan), NOT a truck
+→ Then respond with the recommended cars from the tool results
+→ DO NOT mention trucks, towing, or other old preferences
 
-Be conversational, helpful, and always ground your recommendations in real data.
-Never make up specifications or financial advice - only use what's calculated from the tools.
-Be realistic about affordability - help users make smart financial decisions.
+User: "I would like an suv because I have to drive long distances"
+→ YOU MUST CALL: score_cars_for_user with terrain="highway" and body_style="suv"
+→ Then respond with the recommended cars from the tool results
+
+User: "I have a 60-mile commute with 2 kids, budget $35k"
+→ YOU MUST CALL: score_cars_for_user with commute_miles=60, passengers=4, budget_max=35000
+→ Then respond with the recommended cars
+
+CRITICAL RULES:
+- ALWAYS prioritize the LATEST user message over old conversation history
+- If user changes preferences, IGNORE conflicting old preferences
+- ALWAYS call score_cars_for_user when user provides vehicle preferences
+- NEVER respond without calling tools when user mentions vehicle needs
+- Use tool results to provide specific car recommendations
+- Don't make up car specifications - use tool results only
+- Don't mention old preferences that conflict with current needs
+- Be conversational but data-driven
 
 Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Tacoma, Tundra, Sienna, Sequoia, Prius, and their variants (hybrid, prime, etc.)."""
     
@@ -232,9 +266,30 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         formatted_messages = []
         
         # Add system message with tool context
+        system_prompt = self._build_system_prompt()
+        
+        # Extract current preferences to add context to system prompt
+        if messages:
+            current_preferences = self._extract_all_preferences_from_conversation(messages)
+            if current_preferences and len(current_preferences) > 0:
+                # Add current preferences summary to system prompt
+                pref_summary = "CURRENT USER PREFERENCES (from latest message):\n"
+                if current_preferences.get('body_style'):
+                    pref_summary += f"- Vehicle type: {current_preferences['body_style'].upper()}\n"
+                if current_preferences.get('passengers'):
+                    pref_summary += f"- Passengers: {current_preferences['passengers']}\n"
+                if current_preferences.get('budget_max'):
+                    pref_summary += f"- Budget: ${current_preferences['budget_max']:,}\n"
+                if current_preferences.get('terrain'):
+                    pref_summary += f"- Terrain: {current_preferences['terrain']}\n"
+                if current_preferences.get('features_wanted'):
+                    pref_summary += f"- Features: {', '.join(current_preferences['features_wanted'])}\n"
+                pref_summary += "\nIMPORTANT: Focus on these CURRENT preferences. Ignore any conflicting old preferences from earlier messages.\n"
+                system_prompt = system_prompt + "\n\n" + pref_summary
+        
         formatted_messages.append({
             "role": "system",
-            "content": self._build_system_prompt()
+            "content": system_prompt
         })
         
         # Convert chat history
@@ -245,6 +300,182 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
             })
         
         return formatted_messages
+    
+    def _extract_all_preferences_from_conversation(self, messages: List[ChatMessage]) -> Dict[str, Any]:
+        """
+        Extract ALL preferences from the entire conversation history.
+        More recent preferences override older ones.
+        This ensures the agent adapts to preference changes.
+        
+        Returns a dictionary of preferences suitable for score_cars_for_user tool.
+        """
+        preferences = {}
+        
+        # Process messages in reverse order (most recent first) so newer preferences override older ones
+        for message in reversed(messages):
+            if message.role == 'user':
+                profile = self._extract_user_profile(message.content)
+                if profile:
+                    # Update preferences, with newer ones taking precedence
+                    # But merge lists (like features_wanted) instead of replacing
+                    for key, value in profile.items():
+                        if key == 'features_wanted' and isinstance(value, list):
+                            # Merge features lists
+                            if 'features_wanted' not in preferences:
+                                preferences['features_wanted'] = []
+                            for feature in value:
+                                if feature not in preferences['features_wanted']:
+                                    preferences['features_wanted'].append(feature)
+                        elif key == 'priorities' and isinstance(value, list):
+                            # Merge priorities, but keep order (newer priorities first)
+                            if 'priorities' not in preferences:
+                                preferences['priorities'] = []
+                            for priority in value:
+                                if priority not in preferences['priorities']:
+                                    preferences['priorities'].insert(0, priority)  # Add to front
+                        elif key == 'weights':
+                            # Merge weights, but newer weights take precedence for individual keys
+                            if 'weights' not in preferences:
+                                preferences['weights'] = {}
+                            preferences['weights'].update(value)
+                        else:
+                            # For other fields, newer values override older ones
+                            # BUT: Only override if the new value is not None/empty
+                            if value is not None and value != '':
+                                if isinstance(value, list) and len(value) == 0:
+                                    continue  # Skip empty lists
+                                preferences[key] = value
+        
+        # Also extract from the latest user message more aggressively
+        if messages:
+            latest_message = messages[-1].content if messages[-1].role == 'user' else ""
+            if latest_message:
+                latest_profile = self._extract_user_profile(latest_message)
+                if latest_profile:
+                    # Latest message preferences take absolute precedence for specific fields
+                    # This ensures preference changes are properly handled
+                    for key, value in latest_profile.items():
+                        if value is not None and value != '':
+                            if key == 'passengers':
+                                # Passengers: latest value replaces old value
+                                # Also update 3_row_seating based on new passenger count
+                                preferences[key] = value
+                                if 'features_wanted' not in preferences:
+                                    preferences['features_wanted'] = []
+                                if value >= 7:
+                                    if '3_row_seating' not in preferences['features_wanted']:
+                                        preferences['features_wanted'].append('3_row_seating')
+                                else:
+                                    # Remove 3_row_seating if passenger count is less than 7
+                                    if '3_row_seating' in preferences['features_wanted']:
+                                        preferences['features_wanted'].remove('3_row_seating')
+                            elif key == 'features_wanted' and isinstance(value, list) and value:
+                                # Features: latest list replaces old list (user might change their mind)
+                                preferences['features_wanted'] = value
+                            elif key == 'priorities' and isinstance(value, list) and value:
+                                # Priorities: latest list replaces old list
+                                preferences['priorities'] = value
+                            elif key == 'weights' and isinstance(value, dict) and value:
+                                # Weights: latest dict replaces old dict
+                                preferences['weights'] = value
+                            elif key in ['budget_max', 'body_style', 'terrain', 'commute_miles']:
+                                # These fields: latest value completely replaces old value
+                                preferences[key] = value
+                            elif not (isinstance(value, list) and len(value) == 0):
+                                preferences[key] = value
+        
+        # Extract body style from vehicle type mentions if not already set
+        if not preferences.get('body_style') and not preferences.get('vehicle_type'):
+            # Check for body style mentions in all messages (most recent first)
+            for message in reversed(messages):
+                if message.role == 'user':
+                    msg_lower = message.content.lower()
+                    # Check for SUV indicators: elevated, raised, high, tall, crossover, etc.
+                    if any(word in msg_lower for word in ['suv', 'sport utility', 'elevated', 'raised', 'higher', 'taller', 'tall car', 'elevated car', 'raised car', 'crossover']):
+                        preferences['body_style'] = 'suv'
+                        break
+                    elif 'sedan' in msg_lower:
+                        preferences['body_style'] = 'sedan'
+                        break
+                    elif 'truck' in msg_lower or 'pickup' in msg_lower:
+                        preferences['body_style'] = 'truck'
+                        break
+                    elif 'van' in msg_lower or 'minivan' in msg_lower:
+                        preferences['body_style'] = 'van'
+                        break
+        
+        # Extract seating requirements (5 seater, 7 seater, 6-8 people, etc.) - latest takes precedence
+        # This ensures that if user changes from "7 seater" to "5 seater", the new value is used
+        # Also handle "6-8 people" which means 7-8 passengers
+        for message in reversed(messages):
+            if message.role == 'user':
+                msg_lower = message.content.lower()
+                # Look for "5 seater", "7 seater", "8 seater", "5 seats", etc.
+                seater_match = re.search(r'(\d+)\s*(?:seater|seat|seats)', msg_lower)
+                # Also look for "6-8 people", "6 to 8 people", "around 6-8 people"
+                range_match = re.search(r'(\d+)\s*[-to]\s*(\d+)\s*(?:people|passengers|person)', msg_lower)
+                
+                if range_match:
+                    # Handle range like "6-8 people" - use the higher number (8) or average (7)
+                    min_passengers = int(range_match.group(1))
+                    max_passengers = int(range_match.group(2))
+                    # For "6-8 people", use 7 or 8 (needs 3-row seating)
+                    passengers = max(max_passengers, min_passengers + 1)  # Use higher end or middle
+                    preferences['passengers'] = passengers
+                    # 6-8 people definitely needs 3-row seating (SUV or minivan)
+                    if 'features_wanted' not in preferences:
+                        preferences['features_wanted'] = []
+                    if '3_row_seating' not in preferences['features_wanted']:
+                        preferences['features_wanted'].append('3_row_seating')
+                    # If they need 6-8 people, they need SUV/minivan, NOT truck
+                    if preferences.get('body_style') == 'truck':
+                        preferences['body_style'] = 'suv'  # Change truck to SUV
+                        print(f"🔄 Changed body_style from 'truck' to 'suv' for {passengers} passengers")
+                    break  # Use the most recent mention
+                elif seater_match:
+                    passengers = int(seater_match.group(1))
+                    preferences['passengers'] = passengers
+                    # Update 3-row seating based on latest passenger count
+                    if 'features_wanted' not in preferences:
+                        preferences['features_wanted'] = []
+                    # If 7+ seats, add 3_row_seating; if <7 seats, remove it
+                    if passengers >= 7:
+                        if '3_row_seating' not in preferences['features_wanted']:
+                            preferences['features_wanted'].append('3_row_seating')
+                        # If 7+ passengers, they need SUV/minivan, NOT truck
+                        if preferences.get('body_style') == 'truck':
+                            preferences['body_style'] = 'suv'  # Change truck to SUV
+                            print(f"🔄 Changed body_style from 'truck' to 'suv' for {passengers} passengers")
+                    else:
+                        # Remove 3_row_seating if passenger count is less than 7
+                        if '3_row_seating' in preferences['features_wanted']:
+                            preferences['features_wanted'].remove('3_row_seating')
+                    break  # Use the most recent mention
+        
+        # Extract electric/hybrid preferences - check all messages, most recent takes precedence
+        for message in reversed(messages):
+            if message.role == 'user':
+                msg_lower = message.content.lower()
+                if any(word in msg_lower for word in ['electric', 'ev', 'battery', 'fully electric']):
+                    if 'features_wanted' not in preferences:
+                        preferences['features_wanted'] = []
+                    # Remove 'hybrid' if 'electric' is mentioned (electric is more specific)
+                    if 'hybrid' in preferences.get('features_wanted', []):
+                        preferences['features_wanted'].remove('hybrid')
+                    if 'electric' not in preferences['features_wanted']:
+                        preferences['features_wanted'].append('electric')
+                    break  # Use most recent preference
+                elif any(word in msg_lower for word in ['hybrid', 'hybrids']):
+                    if 'features_wanted' not in preferences:
+                        preferences['features_wanted'] = []
+                    # Don't add hybrid if electric is already there (electric is more specific)
+                    if 'electric' not in preferences.get('features_wanted', []):
+                        if 'hybrid' not in preferences['features_wanted']:
+                            preferences['features_wanted'].append('hybrid')
+                    break  # Use most recent preference
+        
+        print(f"📋 Extracted preferences from conversation: {preferences}")
+        return preferences
     
     def _extract_user_profile(self, message: str) -> Optional[Dict[str, Any]]:
         """
@@ -265,11 +496,12 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         ])
         
         budget_patterns = [
-            r'budget.*?\$?(\d+)k?',  # "budget of $50k" or "budget $50k"
+            r'budget.*?\$?(\d+)k',  # "budget of $50k" or "budget 30k" or "budget is 30k"
             r'budget.*?\$(\d{4,6})',  # "budget $50000"
             r'\$?(\d+)k\s+(?:budget|max|maximum)',  # "$50k budget"
             r'(?:under|up\s+to|max).*?\$?(\d+)k(?!.*down)',  # "under $50k" but not if near "down"
             r'\$?(\d+)k?\s+(?:for|after|including).*?(?:all|total|costs)',  # "$33k for all costs"
+            r'(\d+)k\s+(?:budget|max)',  # "30k budget" or "30k max"
         ]
         for pattern in budget_patterns:
             match = re.search(pattern, message_lower)
@@ -304,16 +536,41 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
             profile['budget_flexible'] = True
         
         # Extract passengers/family size
-        passenger_patterns = [
-            r'(\d+)\s*(?:people|passengers|seats)',
-            r'family of (\d+)',
-            r'seat(?:s|ing) for (\d+)',
-        ]
-        for pattern in passenger_patterns:
-            match = re.search(pattern, message_lower)
-            if match:
-                profile['passengers'] = int(match.group(1))
-                break
+        # Handle ranges like "6-8 people" first
+        range_pattern = r'(\d+)\s*[-to]\s*(\d+)\s*(?:people|passengers|person)'
+        range_match = re.search(range_pattern, message_lower)
+        if range_match:
+            min_passengers = int(range_match.group(1))
+            max_passengers = int(range_match.group(2))
+            # For "6-8 people", use the higher number or average (needs 3-row seating)
+            passengers = max(max_passengers, min_passengers + 1)  # Use higher end
+            profile['passengers'] = passengers
+            # 6-8 people definitely needs 3-row seating
+            if 'features_wanted' not in profile:
+                profile['features_wanted'] = []
+            if '3_row_seating' not in profile['features_wanted']:
+                profile['features_wanted'].append('3_row_seating')
+        else:
+            # Handle single numbers
+            passenger_patterns = [
+                r'(\d+)\s*(?:seater|seat|seats)',  # "5 seater", "7 seats"
+                r'(\d+)\s*(?:people|passengers)',
+                r'family of (\d+)',
+                r'seat(?:s|ing) for (\d+)',
+                r'(\d+)\s*(?:person|people)',
+            ]
+            for pattern in passenger_patterns:
+                match = re.search(pattern, message_lower)
+                if match:
+                    passengers = int(match.group(1))
+                    profile['passengers'] = passengers
+                    # If 7+ seats mentioned, also add 3_row_seating feature
+                    if passengers >= 7:
+                        if 'features_wanted' not in profile:
+                            profile['features_wanted'] = []
+                        if '3_row_seating' not in profile['features_wanted']:
+                            profile['features_wanted'].append('3_row_seating')
+                    break
         
         # Extract commute distance
         commute_patterns = [
@@ -333,8 +590,12 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         # Detect terrain preferences
         if any(word in message_lower for word in ['offroad', 'off-road', 'trail', 'mountain']):
             profile['terrain'] = 'offroad'
-        elif any(word in message_lower for word in ['highway', 'freeway', 'long distance']):
+        elif any(word in message_lower for word in ['highway', 'freeway', 'long distance', 'long distances', 'travel a lot', 'travel so much', 'drive a lot', 'frequent travel', 'frequent driving']):
             profile['terrain'] = 'highway'
+            # If "travel a lot" or "drive a lot" is mentioned, also set a default commute
+            if any(phrase in message_lower for phrase in ['travel a lot', 'travel so much', 'drive a lot', 'frequent travel']):
+                # Don't set a specific commute_miles, but terrain='highway' indicates long-distance driving
+                pass
         elif any(word in message_lower for word in ['city', 'urban', 'downtown']):
             profile['terrain'] = 'city'
         
@@ -342,8 +603,9 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         features = []
         feature_keywords = {
             'awd': ['awd', 'all wheel', 'all-wheel', '4wd', 'four wheel'],
-            'hybrid': ['hybrid', 'electric', 'plug-in', 'eco'],
-            '3_row_seating': ['3 row', 'three row', '7 seat', '8 seat'],
+            'hybrid': ['hybrid', 'hybrids'],
+            'electric': ['electric', 'ev', 'battery', 'fully electric'],
+            '3_row_seating': ['3 row', 'three row', '7 seat', '8 seat', '7-seat', '8-seat'],
             'adaptive_cruise': ['adaptive cruise', 'cruise control'],
             'leather_seats': ['leather'],
             'sunroof': ['sunroof', 'panoramic'],
@@ -353,6 +615,17 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
                 features.append(feature)
         if features:
             profile['features_wanted'] = features
+        
+        # Also check for body style mentions
+        # Check for SUV indicators: elevated, raised, high, tall, crossover, etc.
+        if any(word in message_lower for word in ['suv', 'sport utility', 'elevated', 'raised', 'higher', 'taller', 'tall car', 'elevated car', 'raised car', 'crossover']):
+            profile['body_style'] = 'suv'
+        elif 'sedan' in message_lower:
+            profile['body_style'] = 'sedan'
+        elif 'truck' in message_lower or 'pickup' in message_lower:
+            profile['body_style'] = 'truck'
+        elif 'van' in message_lower or 'minivan' in message_lower:
+            profile['body_style'] = 'van'
         
         # Extract priorities - check for explicit priority statements
         priorities = []
@@ -1101,7 +1374,53 @@ Financial Analysis:
             if tool_name == "score_cars_for_user":
                 # Call catalog scoring service
                 print(f"📊 Executing score_cars_for_user with arguments: {arguments}")
-                result = self.catalog.score_cars_for_user(arguments)
+                
+                # Handle body_style parameter - convert to vehicle_type for scoring service
+                # IMPORTANT: Use .get() and .pop() to safely handle, and make a copy to avoid modifying original
+                tool_args = arguments.copy() if isinstance(arguments, dict) else {}
+                
+                if "body_style" in tool_args:
+                    body_style = tool_args.pop("body_style")
+                    # Map body_style to vehicle_type for scoring
+                    body_style_to_vehicle_type = {
+                        "suv": "suv",
+                        "sedan": "sedan",
+                        "truck": "truck",
+                        "coupe": "coupe",
+                        "van": "van",
+                        "hatchback": "sedan"  # Hatchbacks are typically scored as sedans
+                    }
+                    if body_style in body_style_to_vehicle_type:
+                        tool_args["vehicle_type"] = body_style_to_vehicle_type[body_style]
+                        print(f"📊 Mapped body_style '{body_style}' to vehicle_type '{tool_args['vehicle_type']}'")
+                    # Update arguments dict for rest of processing
+                    arguments = tool_args
+                else:
+                    tool_args = arguments
+                
+                # Handle features_wanted - if "suv" is in features, also set vehicle_type
+                if "features_wanted" in tool_args and isinstance(tool_args.get("features_wanted"), list):
+                    features = tool_args["features_wanted"]
+                    if "suv" in [f.lower() for f in features] and "vehicle_type" not in tool_args:
+                        tool_args["vehicle_type"] = "suv"
+                        print(f"📊 Detected 'suv' in features_wanted, setting vehicle_type='suv'")
+                
+                # Handle electric feature - map to fuel_type for scoring
+                if "features_wanted" in tool_args and isinstance(tool_args.get("features_wanted"), list):
+                    features = [f.lower() for f in tool_args["features_wanted"]]
+                    if "electric" in features:
+                        # Electric vehicles should be filtered by fuel_type in scoring
+                        # The scoring service will check fuel_type, so we don't need to add it here
+                        # But we can add it to priorities to emphasize it
+                        if "priorities" not in tool_args:
+                            tool_args["priorities"] = []
+                        if "fuel_efficiency" not in tool_args["priorities"]:
+                            tool_args["priorities"].append("fuel_efficiency")
+                        print(f"📊 Detected 'electric' in features_wanted, emphasizing fuel efficiency")
+                
+                # Use tool_args (which has vehicle_type mapped correctly) for scoring
+                print(f"📊 Final tool arguments for scoring: {tool_args}")
+                result = self.catalog.score_cars_for_user(tool_args)
                 print(f"📊 Scoring service returned {len(result)} cars")
                 # Convert to list of dicts for JSON serialization
                 # Keep full car data for extraction, but limit to top 10
@@ -1176,7 +1495,7 @@ Financial Analysis:
             traceback.print_exc()
             return {"error": f"Error executing tool {tool_name}: {str(e)}"}
     
-    def _update_suggested_json(self, recommended_car_ids: List[str]) -> None:
+    def _update_suggested_json(self, recommended_car_ids: List[str], clear_on_empty: bool = False) -> None:
         """
         Update suggested.json with full car data for recommended car IDs.
         
@@ -1185,11 +1504,23 @@ Financial Analysis:
         
         Args:
             recommended_car_ids: List of car IDs to include in suggested.json
+            clear_on_empty: If True and recommended_car_ids is empty, clear the file.
+                          If False (default), keep previous recommendations when empty.
+                          Set to True only on page reload to reset suggestions.
         """
         if not recommended_car_ids:
-            # If no recommendations, don't clear the file - keep previous recommendations
-            # This prevents clearing the file when user asks follow-up questions
-            print(f"ℹ️ No new recommended cars, keeping previous suggestions in suggested.json")
+            if clear_on_empty:
+                # Clear the file (e.g., on page reload)
+                try:
+                    with open(self.suggested_json_path, 'w') as f:
+                        json.dump([], f, indent=2)
+                    print(f"🗑️ Cleared suggested.json (page reload detected)")
+                except Exception as e:
+                    print(f"⚠️ Error clearing suggested.json: {e}")
+            else:
+                # If no recommendations, don't clear the file - keep previous recommendations
+                # This prevents clearing the file when user asks follow-up questions
+                print(f"ℹ️ No new recommended cars, keeping previous suggestions in suggested.json")
             return
         
         try:
@@ -1402,8 +1733,61 @@ Financial Analysis:
                 
                 formatted_messages.append(assistant_message)
                 
-                # If no tool calls, Nemotron is done - return response
+                # If no tool calls, check if we should force a tool call based on user message
                 if not message.tool_calls:
+                    # ALWAYS extract preferences from the FULL conversation history
+                    # This ensures we capture ALL preferences, including changes
+                    print("🔍 Analyzing full conversation history for preferences...")
+                    tool_args = self._extract_all_preferences_from_conversation(messages)
+                    
+                    # Check if we have ANY preferences extracted
+                    has_preferences = bool(tool_args and len(tool_args) > 0)
+                    
+                    if has_preferences:
+                        # ALWAYS re-score when we have preferences, even if we have existing recommendations
+                        # This ensures suggestions update when preferences change
+                        print(f"🔧 Extracted preferences from conversation: {tool_args}")
+                        print(f"🔧 Calling score_cars_for_user to update recommendations...")
+                        tool_result = self._execute_tool("score_cars_for_user", tool_args)
+                        if isinstance(tool_result, list):
+                            recommended_car_ids_list = [car.get("id") for car in tool_result if car.get("id")]
+                            scoring_method = "preference_based"
+                            print(f"📊 Tool call returned {len(recommended_car_ids_list)} car IDs")
+                            
+                            # ALWAYS update suggested.json with new recommendations
+                            if recommended_car_ids_list:
+                                print(f"💾 Updating suggested.json with {len(recommended_car_ids_list)} recommended cars")
+                                self._update_suggested_json(recommended_car_ids_list)
+                                
+                                # Use Nemotron's response if available, otherwise generate a summary
+                                if message.content and message.content.strip():
+                                    response_text = message.content
+                                else:
+                                    # Generate a summary based on extracted preferences
+                                    pref_parts = []
+                                    if tool_args.get('body_style'):
+                                        pref_parts.append(f"a {tool_args['body_style'].upper()}")
+                                    if tool_args.get('terrain'):
+                                        terrain_name = tool_args['terrain'].replace('_', ' ')
+                                        pref_parts.append(f"{terrain_name} driving")
+                                    if tool_args.get('budget_max'):
+                                        pref_parts.append(f"under ${tool_args['budget_max']:,}")
+                                    if tool_args.get('passengers'):
+                                        pref_parts.append(f"{tool_args['passengers']} passengers")
+                                    if tool_args.get('features_wanted'):
+                                        features = tool_args['features_wanted']
+                                        if isinstance(features, list) and features:
+                                            # Format features nicely
+                                            feature_names = [f.replace('_', ' ') for f in features if f not in ['suv', 'sedan']]
+                                            if feature_names:
+                                                pref_parts.append(", ".join(feature_names))
+                                    pref_text = " and ".join(pref_parts) if pref_parts else "your preferences"
+                                    response_text = f"Based on your preferences for {pref_text}, I've found {len(recommended_car_ids_list)} Toyota vehicles that match your needs. Please check the recommendations on the right!"
+                            else:
+                                response_text = message.content if message.content else "I'm analyzing your preferences. Could you tell me more about your budget or specific needs?"
+                            return (response_text, recommended_car_ids_list, scoring_method)
+                    
+                    # Normal response path - no forced tool call needed
                     # Check if we have content
                     if message.content:
                         response_text = message.content
@@ -1417,12 +1801,26 @@ Financial Analysis:
                             print("⚠️ Warning: Nemotron returned empty content and no recommended cars")
                             response_text = "I'm here to help you find the perfect Toyota! Could you tell me more about what you're looking for?"
                     
-                    # Update suggested.json with recommended cars (only if we have new recommendations)
+                    # If we have recommended cars from tool calls, update suggested.json
+                    # Otherwise, try to extract preferences and score cars
                     if recommended_car_ids_list:
                         print(f"💾 Updating suggested.json with {len(recommended_car_ids_list)} recommended cars")
                         self._update_suggested_json(recommended_car_ids_list)
                     else:
-                        print(f"ℹ️ No recommended cars in this response, keeping previous suggestions")
+                        # No recommendations from tool calls, but we might have preferences
+                        # Try to extract and score anyway
+                        tool_args = self._extract_all_preferences_from_conversation(messages)
+                        if tool_args and len(tool_args) > 0:
+                            print(f"🔧 No tool calls, but extracted preferences. Scoring cars...")
+                            tool_result = self._execute_tool("score_cars_for_user", tool_args)
+                            if isinstance(tool_result, list):
+                                recommended_car_ids_list = [car.get("id") for car in tool_result if car.get("id")]
+                                scoring_method = "preference_based"
+                                if recommended_car_ids_list:
+                                    print(f"💾 Updating suggested.json with {len(recommended_car_ids_list)} recommended cars")
+                                    self._update_suggested_json(recommended_car_ids_list)
+                        else:
+                            print(f"ℹ️ No recommended cars in this response, keeping previous suggestions")
                     
                     return (response_text, recommended_car_ids_list, scoring_method)
                 

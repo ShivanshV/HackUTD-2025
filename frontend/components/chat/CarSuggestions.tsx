@@ -12,13 +12,14 @@ interface CarSuggestionsProps {
 }
 
 const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, recommendedCarIds = [] }) => {
-  const [allCars, setAllCars] = useState<Vehicle[]>([]);
+  const [suggestedCars, setSuggestedCars] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch suggested vehicles from suggested.json
   const fetchSuggestedVehicles = useCallback(async () => {
     try {
+      setLoading(true);
       const vehicles = await getSuggestedVehicles();
       setSuggestedCars(vehicles);
     } catch (err) {
@@ -29,48 +30,43 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
     }
   }, []);
 
-  // Fetch suggested vehicles on mount and when cars prop changes
+  // Fetch suggested vehicles on mount
   useEffect(() => {
-    const fetchVehicles = async () => {
-      // If cars prop is provided, use it
-      if (cars) {
-        setAllCars(cars);
-        return;
+    // Always fetch from suggested.json first to get latest recommendations
+    fetchSuggestedVehicles();
+    
+    // If cars prop is provided, use it as a fallback or override
+    if (cars && cars.length > 0) {
+      // Only override if we don't have suggestions yet, or if cars prop is explicitly provided
+      // This allows the component to show AI recommendations from suggested.json
+      if (suggestedCars.length === 0) {
+        setSuggestedCars(cars);
       }
-
-      setLoading(true);
-      fetchSuggestedVehicles();
-    } else {
-      // If cars are provided via prop (from chat response), use those
-      setSuggestedCars(cars);
-      setLoading(false);
     }
-  }, [cars, fetchSuggestedVehicles]);
+  }, []); // Only run on mount
 
-  // Poll for updates to suggested.json every 2 seconds
+  // Always poll for updates to suggested.json every 2 seconds
+  // This ensures we show the latest recommendations even if the AI agent updates them
   useEffect(() => {
-    if (!cars) {
-      const interval = setInterval(() => {
-        fetchSuggestedVehicles();
-      }, 2000); // Poll every 2 seconds
+    const interval = setInterval(() => {
+      fetchSuggestedVehicles();
+    }, 2000); // Poll every 2 seconds
 
-      return () => clearInterval(interval);
-    }
-  }, [cars, fetchSuggestedVehicles]);
+    return () => clearInterval(interval);
+  }, [fetchSuggestedVehicles]);
+
+  // Determine which cars to display
+  // Priority: 1) suggestedCars from suggested.json (AI recommendations), 2) cars prop, 3) empty
+  const allCars = suggestedCars.length > 0 ? suggestedCars : (cars && cars.length > 0 ? cars : []);
 
   // Filter cars based on search query
-  const allCars = cars || suggestedCars;
   const displayCars = allCars.filter((car) => {
     if (!searchQuery.trim()) return true;
     
     const searchLower = searchQuery.toLowerCase();
-    const beforeSearch = displayCars.length;
-    displayCars = displayCars.filter((car) => {
-      const carTitle = `${car.year} ${car.make} ${car.model} ${car.trim}`.toLowerCase();
-      return carTitle.includes(searchLower);
-    });
-    console.log(`🔍 Search "${searchQuery}" filtered to ${displayCars.length} vehicles (from ${beforeSearch})`);
-  }
+    const carTitle = `${car.year} ${car.make} ${car.model} ${car.trim}`.toLowerCase();
+    return carTitle.includes(searchLower);
+  });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -81,7 +77,7 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
     }).format(price);
   };
 
-  if (loading) {
+  if (loading && allCars.length === 0) {
     return (
       <div className={styles.sidebar}>
         <div className={styles.header}>
@@ -98,13 +94,18 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
         <div className={styles.headerTop}>
           <div className={styles.headerText}>
             <h3 className={styles.title}>
-              Recommended Vehicles
+              {suggestedCars.length > 0 || (cars && cars.length > 0) ? (
+                <>✨ AI Recommended Vehicles</>
+              ) : (
+                <>All Available Vehicles</>
+              )}
             </h3>
             <p className={styles.subtitle}>
-              {displayCars.length === 0
-                ? 'No recommendations yet. Start a conversation to get personalized recommendations!'
-                : `${displayCars.length} ${displayCars.length === 1 ? 'recommendation' : 'recommendations'} for you`
-              }
+              {suggestedCars.length > 0 || (cars && cars.length > 0) ? (
+                `${displayCars.length} ${displayCars.length === 1 ? 'vehicle' : 'vehicles'} match your needs`
+              ) : (
+                `${displayCars.length} ${displayCars.length === 1 ? 'vehicle' : 'vehicles'} in our catalog`
+              )}
             </p>
           </div>
           <div className={styles.searchContainer}>
@@ -124,11 +125,18 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
         {displayCars.length === 0 ? (
           <div className={styles.noResults}>
             <span className={styles.noResultsIcon}>🔍</span>
-            <p className={styles.noResultsText}>No vehicles found matching "{searchQuery}"</p>
-            <p className={styles.noResultsHint}>Try adjusting your search terms</p>
+            <p className={styles.noResultsText}>
+              {searchQuery.trim() 
+                ? `No vehicles found matching "${searchQuery}"`
+                : 'No vehicles found. Start a conversation to get personalized recommendations!'
+              }
+            </p>
+            <p className={styles.noResultsHint}>
+              {searchQuery.trim() ? 'Try adjusting your search terms' : 'Tell the AI about your preferences'}
+            </p>
           </div>
         ) : (
-          displayCars.map((car, index) => (
+          displayCars.map((car) => (
             <div key={car.id} className={styles.carCard}>
               <div className={styles.carImage}>
                 {car.image_url ? (
@@ -175,4 +183,3 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails, re
 };
 
 export default CarSuggestions;
-
