@@ -1,0 +1,165 @@
+.sidebar {
+  width: 100%;
+  height: 100%;
+  background: #F8F9FA;
+  border-left: 1px solid #e5e5e5;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.header {
+  padding: 24px 20px;
+  border-bottom: 1px solid #e5e5e5;
+  background: white;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 4px 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.carsList {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.carCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.carCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.carImage {
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(135deg, #EB0A1E 0%, #C40818 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.carImageImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.imagePlaceholder {
+  font-size: 48px;
+  opacity: 0.3;
+}
+
+.carInfo {
+  padding: 16px;
+}
+
+.carName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 6px 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.carType {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 4px 0;
+}
+
+.carMpg {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 8px 0;
+}
+
+.carPrice {
+  font-size: 18px;
+  font-weight: 700;
+  color: #EB0A1E;
+  margin: 0 0 12px 0;
+}
+
+.viewButton {
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: 2px solid #EB0A1E;
+  border-radius: 8px;
+  color: #EB0A1E;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.viewButton:hover {
+  background: #EB0A1E;
+  color: white;
+}
+
+.footer {
+  padding: 16px;
+  border-top: 1px solid #e5e5e5;
+  background: white;
+}
+
+.viewAllButton {
+  width: 100%;
+  padding: 14px;
+  background: #EB0A1E;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.viewAllButton:hover {
+  background: #C40818;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .sidebar {
+    border-left: none;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .carImage {
+    height: 120px;
+  }
+
+  .imagePlaceholder {
+    font-size: 40px;
+  }
+}
+

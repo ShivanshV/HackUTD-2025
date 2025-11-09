@@ -1,0 +1,153 @@
+.container {
+  width: 100%;
+  position: relative;
+}
+
+.gradientBorder {
+  background: linear-gradient(135deg, #4A90E2 0%, #8B3FF5 25%, #E91E63 75%, #FF6B6B 100%);
+  border-radius: 16px;
+  padding: 3px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.gradientBorder:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+}
+
+.gradientBorder:focus-within {
+  box-shadow: 0 12px 48px rgba(235, 10, 30, 0.2);
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 13px;
+  overflow: hidden;
+  height: 64px;
+}
+
+.mainInput {
+  flex: 1;
+  padding: 0 24px;
+}
+
+.textInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-family: 'Toyota Type', 'Helvetica Neue', Arial, sans-serif;
+  color: #333;
+  background: transparent;
+}
+
+.textInput::placeholder {
+  color: #999;
+}
+
+.divider {
+  width: 1px;
+  height: 32px;
+  background: #e0e0e0;
+  margin: 0 8px;
+}
+
+.zipInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  min-width: 120px;
+}
+
+.locationIcon {
+  font-size: 18px;
+}
+
+.zipField {
+  width: 60px;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-family: 'Toyota Type', 'Helvetica Neue', Arial, sans-serif;
+  color: #333;
+  font-weight: 500;
+  background: transparent;
+}
+
+.zipField::placeholder {
+  color: #999;
+}
+
+.searchButton {
+  width: 56px;
+  height: 56px;
+  margin: 4px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4A90E2 0%, #5B7FE8 100%);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.searchButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(74, 144, 226, 0.4);
+}
+
+.searchButton:active {
+  transform: scale(0.98);
+}
+
+.searchButton svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .inputWrapper {
+    height: 56px;
+  }
+
+  .mainInput {
+    padding: 0 16px;
+  }
+
+  .textInput {
+    font-size: 15px;
+  }
+
+  .zipInput {
+    min-width: 100px;
+    padding: 0 12px;
+  }
+
+  .searchButton {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .zipInput {
+    display: none;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .inputWrapper {
+    height: 52px;
+  }
+}
+

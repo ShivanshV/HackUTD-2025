@@ -1,3 +1,6 @@
+/* Toyota Type Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -5,16 +8,37 @@
 }
 
 :root {
-  --primary-color: #eb0a1e;
+  /* Toyota Brand Colors */
+  --toyota-red: #EB0A1E;
+  --toyota-red-dark: #C40818;
+  --toyota-red-hover: #D00916;
+  
+  /* Primary Colors */
+  --primary-color: #EB0A1E;
   --secondary-color: #333333;
   --text-color: #333333;
+  --text-secondary: #666666;
+  --text-light: #999999;
+  
+  /* Background Colors */
   --bg-color: #ffffff;
+  --bg-light: #F8F9FA;
   --light-gray: #f5f5f5;
-  --border-color: #dddddd;
+  
+  /* UI Colors */
+  --border-color: #e0e0e0;
   --hover-color: #c00816;
   --user-message-bg: #eb0a1e;
   --agent-message-bg: #f5f5f5;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #4A90E2 0%, #8B3FF5 25%, #E91E63 75%, #FF6B6B 100%);
+  --gradient-text: linear-gradient(135deg, #8B3FF5 0%, #E91E63 50%, #EB0A1E 100%);
 }
 
 html,
@@ -26,20 +50,44 @@ body {
 body {
   color: var(--text-color);
   background: var(--bg-color);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', 'Toyota Type', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+    'Roboto', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--toyota-red);
 }
 
 button {
   cursor: pointer;
   font-family: inherit;
+  border: none;
+  outline: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background: var(--toyota-red);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--toyota-red);
+  color: white;
 }
 

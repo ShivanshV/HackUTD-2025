@@ -1,0 +1,97 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  font-family: 'Toyota Type', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.sparkle {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.1) rotate(10deg); opacity: 0.8; }
+}
+
+.title {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #333;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.gradient {
+  background: linear-gradient(135deg, #8B3FF5 0%, #E91E63 50%, #EB0A1E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.searchSection {
+  max-width: 900px;
+  margin: 0 auto 60px;
+}
+
+.disclaimer {
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+.filtersSection {
+  margin-top: 80px;
+}
+
+.filtersTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 40px 20px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .filtersGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 28px;
+  }
+
+  .sparkle {
+    font-size: 36px;
+  }
+}
+
