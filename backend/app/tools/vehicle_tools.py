@@ -14,27 +14,40 @@ from app.services.vehicle_service import vehicle_service
 
 def find_cars(
     vehicle_type: str | None = None,
+    body_style: str | None = None,
+    fuel_type: str | None = None,
     max_price: float | None = None,
     min_mpg: int | None = None,
     min_seating: int | None = None,
+    year: int | None = None,
 ) -> List[Dict[str, Any]]:
     """
     Find Toyota vehicles matching the given criteria.
     
     Args:
-        vehicle_type: Type of vehicle (sedan, suv, truck, hybrid, electric)
+        vehicle_type: Type of vehicle (sedan, suv, truck, hybrid, electric) - maps to body_style
+        body_style: Body style (sedan, suv, truck, coupe, etc.)
+        fuel_type: Fuel type (gasoline, hybrid, electric, etc.)
         max_price: Maximum price in dollars
         min_mpg: Minimum highway MPG
         min_seating: Minimum number of seats
+        year: Model year
     
     Returns:
         List of matching vehicles with details
     """
+    # Map vehicle_type to body_style if provided
+    # If both are provided, body_style takes precedence
+    if vehicle_type and not body_style:
+        body_style = vehicle_type
+    
     vehicles = vehicle_service.find_vehicles(
-        vehicle_type=vehicle_type,
+        body_style=body_style,
+        fuel_type=fuel_type,
         max_price=max_price,
         min_mpg=min_mpg,
         min_seating=min_seating,
+        year=year,
     )
     
     # Convert to dict for LangChain

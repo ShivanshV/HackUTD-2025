@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api import chat, vehicles
+from app.api import chat, vehicles, orchestrator
 
 app = FastAPI(
     title="Toyota AI Assistant API",
@@ -21,6 +21,7 @@ app.add_middleware(
 # Include routers
 app.include_router(chat.router, prefix="/api", tags=["chat"])
 app.include_router(vehicles.router, prefix="/api", tags=["vehicles"])
+app.include_router(orchestrator.router, prefix="/api", tags=["orchestrator"])
 
 @app.get("/health")
 async def health_check():
