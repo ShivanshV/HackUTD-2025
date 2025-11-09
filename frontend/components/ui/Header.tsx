@@ -1,24 +1,45 @@
 'use client';
 
-import { useState } from 'react';
 import styles from './Header.module.css';
 
 type TabType = 'catalog' | 'smart' | 'compare' | '3d';
 
-export default function Header() {
-  const [activeTab, setActiveTab] = useState<TabType>('smart');
+interface HeaderProps {
+  activeMode: 'smart' | 'catalog';
+  onModeChange: (mode: 'smart' | 'catalog') => void;
+  onNavigateToSearch?: () => void;
+}
 
+export default function Header({ activeMode, onModeChange, onNavigateToSearch }: HeaderProps) {
   const tabs = [
-    { id: 'catalog' as TabType, label: 'Catalog Search', icon: '📋' },
-    { id: 'smart' as TabType, label: 'Smart Search', icon: '🤖' },
-    { id: 'compare' as TabType, label: 'Compare', icon: '⚖️' },
-    { id: '3d' as TabType, label: '3D Model', icon: '🎨' },
+    { id: 'catalog' as const, label: 'Catalog Search', icon: '📋' },
+    { id: 'smart' as const, label: 'Smart Search', icon: '🤖' },
+    { id: 'compare' as const, label: 'Compare', icon: '⚖️' },
+    { id: '3d' as const, label: '3D Model', icon: '🎨' },
   ];
+
+  const handleTabClick = (tabId: TabType) => {
+    if (tabId === 'catalog' || tabId === 'smart') {
+      onModeChange(tabId);
+      // Navigate back to search page if we're on a different page
+      if (onNavigateToSearch) {
+        onNavigateToSearch();
+      }
+    }
+    // Compare and 3D Model are placeholders for now
+  };
+
+  const handleLogoClick = () => {
+    onModeChange('smart');
+    if (onNavigateToSearch) {
+      onNavigateToSearch();
+    }
+  };
 
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
-        <div className={styles.logoContainer}>
+        <div className={styles.logoContainer} onClick={handleLogoClick}>
           <div className={styles.logoBox}>
             <svg 
               className={styles.logoIcon} 
@@ -40,8 +61,8 @@ export default function Header() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`${styles.navTab} ${activeTab === tab.id ? styles.active : ''}`}
-              onClick={() => setActiveTab(tab.id)}
+              className={`${styles.navTab} ${activeMode === tab.id ? styles.active : ''}`}
+              onClick={() => handleTabClick(tab.id)}
             >
               <span className={styles.tabIcon}>{tab.icon}</span>
               <span className={styles.tabLabel}>{tab.label}</span>

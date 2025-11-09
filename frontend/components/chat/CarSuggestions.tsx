@@ -120,9 +120,17 @@ const CarSuggestions: React.FC<CarSuggestionsProps> = ({ cars, onViewDetails }) 
           displayCars.map((car, index) => (
             <div key={car.id} className={styles.carCard}>
               <div className={styles.carImage}>
-                <div className={styles.imagePlaceholder}>
-                  🚗
-                </div>
+                {car.image_url ? (
+                  <img 
+                    src={car.image_url} 
+                    alt={`${car.year} ${car.model}`}
+                    className={styles.carImageImg}
+                  />
+                ) : (
+                  <div className={styles.imagePlaceholder}>
+                    🚗
+                  </div>
+                )}
               </div>
               <div className={styles.carInfo}>
                 <h4 className={styles.carName}>

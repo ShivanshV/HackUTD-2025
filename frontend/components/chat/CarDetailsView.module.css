@@ -622,22 +622,26 @@
 
 /* Dealer Inventory */
 .dealerGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
   margin-top: 1rem;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  justify-content: center;
 }
 
 .dealerCard {
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 1rem 1.25rem;
+  padding: 1.5rem 2rem;
   transition: all 0.3s ease;
   cursor: pointer;
+  text-align: center;
+  width: 280px;
+  flex-shrink: 0;
 }
 
 .dealerCard:hover {
@@ -653,6 +657,7 @@
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
 }
 
@@ -678,3 +683,153 @@
   background-clip: text;
 }
 
+
+/* Cost Breakdown */
+.costBreakdown {
+  padding: 20px;
+}
+
+.costItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.costLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.costValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #EB0A1E;
+}
+
+.costTotal {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+}
+
+.totalValue {
+  color: #EB0A1E;
+  font-weight: 700;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Cost Projection */
+.costProjection {
+  padding: 20px;
+}
+
+.projectionItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.projectionLabel {
+  font-size: 15px;
+  color: #666;
+}
+
+.projectionValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.projectionTotal {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, #EB0A1E 0%, #C40818 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.projectionTotalValue {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.chartNote {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Comparison Box */
+.comparisonBox {
+  background: white;
+  border: 2px solid #e5e5e5;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.chartSubtitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.comparisonTable {
+  padding: 20px;
+}
+
+.comparisonRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.comparisonLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: #666;
+}
+
+.comparisonValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #EB0A1E;
+}
+
+.comparisonNote {
+  margin-top: 16px;
+  padding: 12px;
+  background: #FFF5F5;
+  border-left: 4px solid #EB0A1E;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+}

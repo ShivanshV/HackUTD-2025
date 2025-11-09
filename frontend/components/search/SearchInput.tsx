@@ -20,8 +20,9 @@ const SearchInput: React.FC<SearchInputProps> = ({
   onSearch,
   placeholder = 'The car I want has...'
 }) => {
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       onSearch();
     }
   };
@@ -35,7 +36,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
               type="text"
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               placeholder={placeholder}
               className={styles.textInput}
             />
@@ -49,7 +50,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
               type="text"
               value={zipCode}
               onChange={(e) => onZipCodeChange(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               placeholder="ZIP"
               className={styles.zipField}
               maxLength={5}

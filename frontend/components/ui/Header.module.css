@@ -21,6 +21,16 @@
   align-items: center;
   gap: 14px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 8px;
+}
+
+.logoContainer:hover {
+  background: #f8f8f8;
+  transform: translateY(-1px);
 }
 
 .logoBox {
@@ -31,6 +41,12 @@
   align-items: center;
   justify-content: center;
   border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.logoContainer:hover .logoBox {
+  background: #C40818;
+  box-shadow: 0 2px 8px rgba(235, 10, 30, 0.3);
 }
 
 .logoIcon {

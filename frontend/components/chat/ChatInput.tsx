@@ -18,7 +18,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
     }
   }
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
@@ -31,7 +31,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         className={styles.input}
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyDown}
         placeholder="Tell me about your needs..."
         disabled={disabled}
         rows={1}

@@ -1,8 +1,14 @@
 .container {
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Smart Search Container */
+.smartSearchContainer {
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 24px;
-  font-family: 'Toyota Type', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .hero {
@@ -52,16 +58,200 @@
   line-height: 1.5;
 }
 
+/* Hero Section */
+.heroSection {
+  position: relative;
+  min-height: 600px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 50%, #1a1a1a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  overflow: hidden;
+}
+
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('/Toyota-main.jpg') center/cover;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);
+  z-index: 1;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: 56px;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 48px 0;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+
+.toyotaRed {
+  color: #EB0A1E;
+}
+
+/* Search Card */
+.searchCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.searchTabs {
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.tab {
+  flex: 1;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabActive {
+  background: white;
+  color: #333;
+  border-bottom: 3px solid #EB0A1E;
+}
+
+.searchFilters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 120px 140px;
+  gap: 12px;
+  padding: 24px;
+}
+
+.filterSelect,
+.zipInput {
+  padding: 14px 16px;
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.filterSelect:hover,
+.zipInput:hover {
+  border-color: #EB0A1E;
+}
+
+.filterSelect:focus,
+.zipInput:focus {
+  outline: none;
+  border-color: #EB0A1E;
+  box-shadow: 0 0 0 3px rgba(235, 10, 30, 0.1);
+}
+
+.zipInput {
+  text-align: center;
+}
+
+.searchButton {
+  background: linear-gradient(135deg, #EB0A1E 0%, #C40818 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(235, 10, 30, 0.3);
+}
+
+.searchButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(235, 10, 30, 0.4);
+}
+
+.searchButton:active {
+  transform: translateY(0);
+}
+
+/* AI Prompt */
+.aiPrompt {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 32px;
+  padding: 14px 28px;
+  font-size: 15px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aiPrompt:hover {
+  background: white;
+  border-color: #EB0A1E;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.aiIcon {
+  font-size: 18px;
+}
+
 .filtersSection {
-  margin-top: 80px;
+  max-width: 1200px;
+  margin: 80px auto;
+  padding: 0 24px;
 }
 
 .filtersTitle {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 700;
   color: #333;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
+  text-align: center;
   letter-spacing: -0.01em;
+}
+
+.filtersSubtitle {
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 40px;
 }
 
 .filtersGrid {
@@ -71,8 +261,19 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .searchFilters {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .searchButton {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 768px) {
-  .container {
+  .smartSearchContainer {
     padding: 40px 20px;
   }
 
@@ -80,8 +281,25 @@
     font-size: 32px;
   }
 
+  .heroTitle {
+    font-size: 36px;
+  }
+
+  .searchFilters {
+    grid-template-columns: 1fr;
+  }
+
+  .heroSection {
+    min-height: 500px;
+    padding: 60px 20px;
+  }
+
   .filtersGrid {
     grid-template-columns: 1fr;
+  }
+
+  .searchCard {
+    border-radius: 12px;
   }
 }
 
@@ -92,6 +310,15 @@
 
   .sparkle {
     font-size: 36px;
+  }
+
+  .heroTitle {
+    font-size: 28px;
+  }
+
+  .aiPrompt {
+    font-size: 13px;
+    padding: 12px 20px;
   }
 }
 
