@@ -10,6 +10,7 @@ Updated to work with comprehensive nested JSON format.
 
 from typing import List, Dict, Any
 import json
+import re
 from pathlib import Path
 
 
@@ -177,20 +178,63 @@ class CatalogScoringService:
         """Get child seat fit rating"""
         return car.get("specs", {}).get("capacity", {}).get("rear_seat_child_seat_fit", "good")
     
+    def _get_cargo_volume_l(self, car: Dict[str, Any]) -> float:
+        """Get cargo volume in liters"""
+        return car.get("specs", {}).get("capacity", {}).get("cargo_volume_l", 400)
+    
+    def _get_cargo_volume_cuft(self, car: Dict[str, Any]) -> float:
+        """Get cargo volume in cubic feet (convert from liters or parse from string)"""
+        # Try to get from cargo_volume_l and convert (1L ≈ 0.0353 cu ft)
+        cargo_l = self._get_cargo_volume_l(car)
+        if cargo_l:
+            return cargo_l * 0.0353
+        
+        # Try to parse from cargo_space string if available
+        cargo_space_str = car.get("cargo_space", "")
+        if cargo_space_str:
+            # Extract number from strings like "15.1 cu ft" or "15.1"
+            match = re.search(r'(\d+\.?\d*)', cargo_space_str)
+            if match:
+                return float(match.group(1))
+        
+        return 15.0  # Default
+    
     # Scoring methods
     def _score_budget(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
         """Score based on budget"""
         reasons = []
         budget_max = profile.get("budget_max", 50000)
+        budget_is_total_cost = profile.get("budget_is_total_cost", False)
+        budget_flexible = profile.get("budget_flexible", False)
         price = self._get_price(car)
         
-        if price <= budget_max:
-            ratio = 1.0 - (price / budget_max) * 0.3
+        # If budget is total cost and flexible, be more lenient
+        if budget_is_total_cost and budget_flexible:
+            # For flexible total cost budgets, allow up to 15% over (since base price + taxes/fees = total)
+            effective_budget = budget_max * 1.15
+        elif budget_is_total_cost:
+            # For strict total cost budgets, estimate base price (budget_max already accounts for taxes)
+            # The scoring profile should have budget_max_estimated_base, but if not, use 88% of total
+            effective_budget = profile.get("budget_max_estimated_base", int(budget_max * 0.88))
+        elif budget_flexible:
+            # Flexible base price budget - allow 10% over
+            effective_budget = budget_max * 1.10
+        else:
+            # Strict base price budget
+            effective_budget = budget_max
+        
+        if price <= effective_budget:
+            ratio = 1.0 - (price / effective_budget) * 0.3
             reasons.append("within_budget")
-            if price <= budget_max * 0.8:
+            if price <= effective_budget * 0.8:
                 reasons.append("under_budget")
+            if budget_flexible:
+                reasons.append("budget_flexible")
             return (ratio, reasons)
         else:
+            # If budget is flexible, still give some score even if over
+            if budget_flexible and price <= effective_budget * 1.2:
+                return (0.5, ["over_budget_but_flexible"])
             return (0.2, [])
     
     def _score_fuel_efficiency(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
@@ -224,11 +268,15 @@ class CatalogScoringService:
             return (0.7, reasons)
     
     def _score_seating(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
-        """Score based on seating capacity"""
+        """Score based on seating capacity and cargo space"""
         reasons = []
         passengers_needed = profile.get("passengers", 5)
         seats = self._get_seating(car)
+        priorities = profile.get("priorities", [])
+        top_priority = profile.get("top_priority")
         
+        # Check seating capacity
+        seating_score = 1.0
         if seats >= passengers_needed:
             reasons.append("enough_seats")
             if seats >= passengers_needed + 2:
@@ -237,10 +285,40 @@ class CatalogScoringService:
             # Bonus for good child seat fit if has children
             if profile.get("has_children") and self._get_child_seat_fit(car) in ["good", "excellent"]:
                 reasons.append("child_seat_friendly")
-            
-            return (1.0, reasons)
         else:
-            return (0.2, reasons)
+            seating_score = 0.2
+        
+        # Score cargo/trunk space (especially important if space is a priority)
+        cargo_volume_cuft = self._get_cargo_volume_cuft(car)
+        space_is_priority = "space" in priorities or top_priority == "space"
+        
+        if space_is_priority:
+            # If space is a priority, heavily weight cargo volume
+            # Large cargo: >20 cu ft = excellent, 15-20 = good, 10-15 = decent, <10 = poor
+            if cargo_volume_cuft >= 20:
+                reasons.append("excellent_cargo_space")
+                cargo_score = 1.0
+            elif cargo_volume_cuft >= 15:
+                reasons.append("good_cargo_space")
+                cargo_score = 0.9
+            elif cargo_volume_cuft >= 12:
+                reasons.append("decent_cargo_space")
+                cargo_score = 0.7
+            else:
+                cargo_score = 0.4
+            
+            # Combine seating and cargo scores (weight cargo more if it's the top priority)
+            if top_priority == "space":
+                # Top priority: 70% cargo, 30% seating
+                combined_score = cargo_score * 0.7 + seating_score * 0.3
+            else:
+                # Regular priority: 50% cargo, 50% seating
+                combined_score = cargo_score * 0.5 + seating_score * 0.5
+            
+            return (combined_score, reasons)
+        else:
+            # Space not a priority, just return seating score
+            return (seating_score, reasons)
     
     def _score_drivetrain(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
         """Score based on drivetrain"""
@@ -265,8 +343,26 @@ class CatalogScoringService:
         reasons = []
         has_children = profile.get("has_children", False)
         terrain = profile.get("terrain", "mixed")
+        needs_ground_clearance = profile.get("needs_ground_clearance", False)
         body_style = self._get_body_style(car)
         seats = self._get_seating(car)
+        ground_clearance = self._get_ground_clearance(car)
+        
+        # Handle ground clearance needs (potholes, speed bumps, rough roads)
+        if needs_ground_clearance or terrain == "rough_city":
+            # SUVs and trucks typically have better ground clearance
+            if body_style in ["suv", "truck"] or ground_clearance >= 8.0:
+                reasons.append("good_clearance")
+                if ground_clearance >= 8.5:
+                    reasons.append("excellent_clearance")
+                return (1.0, reasons)
+            elif ground_clearance >= 7.0:
+                reasons.append("decent_clearance")
+                return (0.8, reasons)
+            elif ground_clearance >= 6.0:
+                return (0.6, reasons)
+            else:
+                return (0.4, reasons)
         
         if has_children:
             if body_style in ["suv", "minivan"] or seats >= 7:
@@ -281,7 +377,7 @@ class CatalogScoringService:
                 if self._is_offroad_capable(car) or body_style == "truck":
                     reasons.append("offroad_capable")
                     return (1.0, reasons)
-                elif self._get_ground_clearance(car) >= 8.0:
+                elif ground_clearance >= 8.0:
                     reasons.append("good_clearance")
                     return (0.8, reasons)
                 else:
