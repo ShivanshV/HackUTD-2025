@@ -498,10 +498,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.vehicleImageImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .imagePlaceholder {
   font-size: 48px;
+  opacity: 0.3;
+}
+
+/* Comparison Card Images */
+.comparisonImageContainer {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.comparisonImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.comparisonImagePlaceholder {
+  font-size: 64px;
   opacity: 0.3;
 }
 

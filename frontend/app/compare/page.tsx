@@ -116,6 +116,17 @@ export default function ComparePage() {
                   >
                     ×
                   </button>
+                  <div className={styles.comparisonImageContainer}>
+                    {vehicle.image_url ? (
+                      <img 
+                        src={vehicle.image_url} 
+                        alt={`${vehicle.year} ${vehicle.model}`}
+                        className={styles.comparisonImage}
+                      />
+                    ) : (
+                      <div className={styles.comparisonImagePlaceholder}>🚗</div>
+                    )}
+                  </div>
                   <div className={styles.vehicleHeader}>
                     <h3>{vehicle.year} {vehicle.make}</h3>
                     <h4>{vehicle.model} {vehicle.trim}</h4>
@@ -438,7 +449,15 @@ export default function ComparePage() {
                     <div className={styles.selectedBadge}>✓ Selected</div>
                   )}
                   <div className={styles.vehicleImage}>
-                    <div className={styles.imagePlaceholder}>🚗</div>
+                    {vehicle.image_url ? (
+                      <img 
+                        src={vehicle.image_url} 
+                        alt={`${vehicle.year} ${vehicle.model}`}
+                        className={styles.vehicleImageImg}
+                      />
+                    ) : (
+                      <div className={styles.imagePlaceholder}>🚗</div>
+                    )}
                   </div>
                   <div className={styles.vehicleInfo}>
                     <h4 className={styles.vehicleName}>
