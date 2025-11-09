@@ -3323,7 +3323,7 @@
     "best_for": "Commuters",
     "image_url": "https://images.unsplash.com/photo-toyota-corolla-2019",
     "video_id": "demoVideoId",
-    "3d_model_url": "/models/corolla_2019.glb",
+    "3d_model_url": "/models/rav4-hybrid-2023/MDL13625_reversed.glb",
     "dealerInventory": [
       {
         "dealer": "Toyota of Plano",
@@ -3513,7 +3513,7 @@
     "best_for": "Commuters",
     "image_url": "https://images.unsplash.com/photo-toyota-corolla-2020",
     "video_id": "demoVideoId",
-    "3d_model_url": "/models/corolla_2020.glb",
+    "3d_model_url": "/models/rav4-hybrid-2023/MDL13625_reversed.glb",
     "dealerInventory": [
       {
         "dealer": "Toyota of Plano",
@@ -8489,7 +8489,7 @@
     "best_for": "Versatile drivers",
     "image_url": "https://images.unsplash.com/photo-toyota-rav4-hybrid-2024",
     "video_id": "demoVideoId",
-    "3d_model_url": "/models/rav4_hybrid_2024.glb",
+    "3d_model_url": "/models/rav4-hybrid-2023/2023_toyota_rav4_hybrid.glb",
     "dealerInventory": [
       {
         "dealer": "Toyota of Plano",
@@ -15943,7 +15943,7 @@
     "best_for": "Families",
     "image_url": "https://images.unsplash.com/photo-toyota-4runner-2018",
     "video_id": "demoVideoId",
-    "3d_model_url": "/models/4runner_2018.glb",
+    "3d_model_url": "/models/rav4-hybrid-2023/toyota_4runner_mk4_stock.glb",
     "dealerInventory": [
       {
         "dealer": "Toyota of Plano",
@@ -16037,7 +16037,6 @@
     "best_for": "Families",
     "image_url": "https://images.unsplash.com/photo-toyota-4runner-2018",
     "video_id": "demoVideoId",
-    "3d_model_url": "/models/4runner_2018.glb",
     "dealerInventory": [
       {
         "dealer": "Toyota of Plano",

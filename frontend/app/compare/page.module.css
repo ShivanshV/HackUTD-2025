@@ -1,0 +1,593 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+.main {
+  flex: 1;
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #EB0A1E;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.comparisonSection {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.comparisonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.comparisonHeader h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.clearButton {
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid #EB0A1E;
+  border-radius: 8px;
+  color: #EB0A1E;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.clearButton:hover {
+  background: #EB0A1E;
+  color: white;
+}
+
+.comparisonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.comparisonCard {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #EB0A1E;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+}
+
+.removeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #EB0A1E;
+  color: white;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.removeButton:hover {
+  background: #C40818;
+  transform: scale(1.1);
+}
+
+.vehicleHeader {
+  margin-bottom: 20px;
+}
+
+.vehicleHeader h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.vehicleHeader h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.specs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.specs::-webkit-scrollbar {
+  width: 6px;
+}
+
+.specs::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.specs::-webkit-scrollbar-thumb {
+  background: #EB0A1E;
+  border-radius: 3px;
+}
+
+.specs::-webkit-scrollbar-thumb:hover {
+  background: #C40818;
+}
+
+.specCategory {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e5e5e5;
+}
+
+.categoryTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #EB0A1E;
+  font-family: 'Inter', sans-serif;
+}
+
+.specItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.specItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.specLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  font-family: 'Inter', sans-serif;
+  flex: 1;
+}
+
+.specValue {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+  text-align: right;
+}
+
+.reportSection {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.reportHeader {
+  margin-bottom: 24px;
+}
+
+.reportInfo h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reportInfo p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.reportOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Inter', sans-serif;
+  transition: color 0.2s ease;
+}
+
+.checkboxLabel:hover {
+  color: #EB0A1E;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #EB0A1E;
+}
+
+.reportActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.reportButton {
+  flex: 1;
+  min-width: 200px;
+  padding: 16px 32px;
+  background: white;
+  border: 2px solid #EB0A1E;
+  border-radius: 10px;
+  color: #EB0A1E;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.reportButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #EB0A1E 0%, #C40818 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.reportButton:hover::before {
+  transform: scaleX(1);
+}
+
+.reportButton:hover {
+  color: white;
+  border-color: #EB0A1E;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(235, 10, 30, 0.4);
+}
+
+.reportButtonSecondary {
+  flex: 1;
+  min-width: 180px;
+  padding: 16px 28px;
+  background: white;
+  border: 2px solid #EB0A1E;
+  border-radius: 10px;
+  color: #EB0A1E;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.reportButtonSecondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #EB0A1E;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.reportButtonSecondary:hover::before {
+  transform: scaleX(1);
+}
+
+.reportButtonSecondary:hover {
+  color: white;
+  border-color: #EB0A1E;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(235, 10, 30, 0.3);
+}
+
+.buttonIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.selectionSection {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.searchContainer {
+  position: relative;
+  margin-bottom: 24px;
+  max-width: 500px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 14px 46px 14px 18px;
+  border: 2px solid #e5e5e5;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+  color: #333;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #EB0A1E;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(235, 10, 30, 0.1);
+}
+
+.searchIcon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.vehicleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.vehicleCard {
+  background: white;
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.vehicleCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #EB0A1E;
+}
+
+.vehicleCard.selected {
+  border-color: #EB0A1E;
+  border-width: 3px;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.vehicleCard.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vehicleCard.disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #e5e5e5;
+}
+
+.selectedBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #EB0A1E;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 1;
+  font-family: 'Inter', sans-serif;
+}
+
+.vehicleImage {
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(135deg, #EB0A1E 0%, #C40818 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePlaceholder {
+  font-size: 48px;
+  opacity: 0.3;
+}
+
+.vehicleInfo {
+  padding: 16px;
+}
+
+.vehicleName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.vehicleTrim {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 8px 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.vehiclePrice {
+  font-size: 18px;
+  font-weight: 700;
+  color: #EB0A1E;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .comparisonSection {
+    padding: 20px;
+  }
+
+  .comparisonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .reportSection {
+    margin-top: 24px;
+    padding-top: 24px;
+  }
+
+  .reportInfo h3 {
+    font-size: 20px;
+  }
+
+  .reportInfo p {
+    font-size: 13px;
+  }
+
+  .reportOptions {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .reportActions {
+    flex-direction: column;
+  }
+
+  .reportButton,
+  .reportButtonSecondary {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .selectionSection {
+    padding: 20px;
+  }
+
+  .vehicleGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+

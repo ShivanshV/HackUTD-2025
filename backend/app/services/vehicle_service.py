@@ -16,7 +16,7 @@ class VehicleService:
 
         try:
             with open(cars_file, 'r') as f:
-                data = json.load(f)
+                data = json.load(f, object_hook=self._json_object_hook)
             print(f"✅ Loaded {len(data)} vehicles from cars.json")
             return data
         except FileNotFoundError:
@@ -25,6 +25,12 @@ class VehicleService:
         except json.JSONDecodeError as e:
             print(f"❌ Error decoding JSON: {e}")
             return []
+
+    def _json_object_hook(self, d):
+        """Renames '3d_model_url' to '_3d_model_url' for consistency with frontend."""
+        if '3d_model_url' in d:
+            d['_3d_model_url'] = d.pop('3d_model_url')
+        return d
 
     def get_all_vehicles(self) -> List[Vehicle]:
         """Get all vehicles"""

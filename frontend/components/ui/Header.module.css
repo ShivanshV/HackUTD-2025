@@ -90,6 +90,16 @@
 .tabIcon {
   font-size: 18px;
   line-height: 1;
+  color: #888;
+  font-weight: 400;
+}
+
+.navTab:hover .tabIcon {
+  color: #555;
+}
+
+.navTab.active .tabIcon {
+  color: white;
 }
 
 .tabLabel {
