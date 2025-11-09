@@ -9,10 +9,6 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
 
-class ChatResponse(BaseModel):
-    role: Literal["agent"]
-    content: str
-
 # Vehicle models matching the JSON structure
 class Pricing(BaseModel):
     base_msrp: float
@@ -104,3 +100,10 @@ class Vehicle(BaseModel):
     video_id: Optional[str] = None
     model_config = {"extra": "allow"}  # Allow 3d_model_url field
     dealerInventory: Optional[List[DealerInventory]] = None
+
+# Chat response model
+class ChatResponse(BaseModel):
+    role: Literal["agent"]
+    content: str
+    recommended_car_ids: Optional[List[str]] = None  # Car IDs recommended by Nemotron (frontend can fetch full details via /api/vehicles/{id})
+    scoring_method: Optional[str] = None  # "preference_based", "affordability_based", etc.

@@ -96,13 +96,21 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         message_lower = message.lower()
         
         # Extract budget (exclude down payment amounts)
-        # Only extract if explicitly mentioned as budget or if no "down" context
+        # Handle different budget types: base price, total cost, OTD (out the door), after all costs
         has_down_context = 'down' in message_lower
+        
+        # Check for "total cost", "after all costs", "OTD", "out the door" - these mean TOTAL cost including taxes/fees
+        is_total_cost = any(phrase in message_lower for phrase in [
+            'after all costs', 'total cost', 'out the door', 'otd', 
+            'including all', 'all included', 'total price', 'all costs included'
+        ])
+        
         budget_patterns = [
             r'budget.*?\$?(\d+)k?',  # "budget of $50k" or "budget $50k"
             r'budget.*?\$(\d{4,6})',  # "budget $50000"
             r'\$?(\d+)k\s+(?:budget|max|maximum)',  # "$50k budget"
             r'(?:under|up\s+to|max).*?\$?(\d+)k(?!.*down)',  # "under $50k" but not if near "down"
+            r'\$?(\d+)k?\s+(?:for|after|including).*?(?:all|total|costs)',  # "$33k for all costs"
         ]
         for pattern in budget_patterns:
             match = re.search(pattern, message_lower)
@@ -114,10 +122,27 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
                 if 'down' not in nearby_text:
                     budget = match.group(1)
                     if 'k' in match.group(0).lower():
-                        profile['budget_max'] = int(budget) * 1000
+                        budget_value = int(budget) * 1000
                     else:
-                        profile['budget_max'] = int(budget)
+                        budget_value = int(budget)
+                    
+                    # If it's "total cost" or "after all costs", mark it as total cost
+                    # For total cost, we should use a lower base price (subtract ~10-15% for taxes/fees)
+                    if is_total_cost:
+                        # Mark as total cost budget - will need to adjust base price expectations
+                        profile['budget_max'] = budget_value
+                        profile['budget_is_total_cost'] = True
+                        # Estimate base MSRP from total cost (assume ~12% for taxes/fees)
+                        # This is an approximation - actual can vary by state
+                        profile['budget_max_estimated_base'] = int(budget_value * 0.88)
+                    else:
+                        profile['budget_max'] = budget_value
+                        profile['budget_is_total_cost'] = False
                     break
+        
+        # Check if budget is flexible
+        if any(phrase in message_lower for phrase in ['flexible', 'can go higher', 'not strict', 'can adjust']):
+            profile['budget_flexible'] = True
         
         # Extract passengers/family size
         passenger_patterns = [
@@ -170,22 +195,117 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         if features:
             profile['features_wanted'] = features
         
-        # Extract priorities
+        # Extract priorities - check for explicit priority statements
         priorities = []
+        
+        # Check for explicit priority statements ("most important", "top priority", "priority is")
+        priority_phrases = [
+            r'(?:most|top|main|primary|#1|number one).*?priority.*?is.*?(trunk|cargo|space|storage|price|cost|budget|fuel|mpg|safety|performance|power)',
+            r'priority.*?is.*?(trunk|cargo|space|storage|price|cost|budget|fuel|mpg|safety|performance|power)',
+            r'(?:care|need|want).*?most.*?(?:about|is).*?(trunk|cargo|space|storage|price|fuel|safety|performance)',
+        ]
+        
+        top_priority = None
+        for pattern in priority_phrases:
+            match = re.search(pattern, message_lower)
+            if match:
+                priority_word = match.group(1).lower()
+                if priority_word in ['trunk', 'cargo', 'space', 'storage']:
+                    top_priority = 'space'
+                elif priority_word in ['fuel', 'mpg', 'gas', 'efficient']:
+                    top_priority = 'fuel_efficiency'
+                elif priority_word in ['safety', 'safe']:
+                    top_priority = 'safety'
+                elif priority_word in ['performance', 'power']:
+                    top_priority = 'performance'
+                elif priority_word in ['price', 'cost', 'budget']:
+                    top_priority = 'budget'
+                break
+        
+        # Extract all priorities mentioned
         if any(word in message_lower for word in ['fuel', 'mpg', 'gas', 'efficient', 'economy']):
             priorities.append('fuel_efficiency')
         if any(word in message_lower for word in ['safe', 'safety']):
             priorities.append('safety')
-        if any(word in message_lower for word in ['space', 'spacious', 'room', 'cargo']):
+        # Enhanced space detection - trunk, cargo, storage, equipment
+        if any(word in message_lower for word in ['space', 'spacious', 'room', 'cargo', 'trunk', 'storage', 'equipment', 'luggage', 'gear']):
             priorities.append('space')
         if any(word in message_lower for word in ['performance', 'power', 'fast', 'sporty']):
             priorities.append('performance')
+        
+        # If top priority was detected, put it first
+        if top_priority and top_priority in priorities:
+            priorities.remove(top_priority)
+            priorities.insert(0, top_priority)
+        elif top_priority and top_priority not in priorities:
+            priorities.insert(0, top_priority)
+        
         if priorities:
             profile['priorities'] = priorities
-            # Convert priorities to weight adjustments
-            profile['weights'] = self._priorities_to_weights(priorities)
+            # Store top priority separately for emphasis
+            if top_priority:
+                profile['top_priority'] = top_priority
+            # Convert priorities to weight adjustments (pass top_priority for higher weight)
+            profile['weights'] = self._priorities_to_weights(priorities, top_priority=top_priority)
+        
+        # Detect ground clearance / suspension needs (potholes, speed bumps, rough roads)
+        if any(phrase in message_lower for phrase in [
+            'pothole', 'speed bump', 'speedbump', 'rough road', 'rough roads',
+            'bumpy', 'uneven', 'ground clearance', 'clearance', 'suspension'
+        ]):
+            profile['needs_ground_clearance'] = True
+            profile['terrain'] = 'rough_city'  # Special terrain type for rough city driving
         
         return profile if profile else None
+    
+    def _has_substantial_vehicle_preferences(self, user_profile: Optional[Dict[str, Any]]) -> bool:
+        """
+        Determine if user has provided enough vehicle preference information
+        to make meaningful recommendations without financial info.
+        
+        Substantial preferences = at least 2 of:
+        - Budget (or budget is flexible)
+        - Passengers/family needs
+        - Priorities (especially top priority)
+        - Features wanted
+        - Terrain/commute
+        - Specific needs (ground clearance, cargo space, etc.)
+        """
+        if not user_profile:
+            return False
+        
+        preference_count = 0
+        
+        # Budget (even if flexible, it's a preference)
+        if user_profile.get("budget_max") or user_profile.get("budget_flexible"):
+            preference_count += 1
+        
+        # Passengers/family
+        if user_profile.get("passengers") or user_profile.get("has_children"):
+            preference_count += 1
+        
+        # Priorities (especially if top priority is specified)
+        if user_profile.get("priorities"):
+            preference_count += 1
+            # Top priority counts as extra substantial info
+            if user_profile.get("top_priority"):
+                preference_count += 0.5
+        
+        # Features wanted
+        if user_profile.get("features_wanted"):
+            preference_count += 1
+        
+        # Terrain/commute
+        if user_profile.get("terrain") or user_profile.get("commute_miles"):
+            preference_count += 1
+        
+        # Specific needs
+        if user_profile.get("needs_ground_clearance"):
+            preference_count += 1
+        
+        # If user has at least 2 substantial preferences, show results
+        # If they have a top priority explicitly stated, that's even better
+        return preference_count >= 2.0
     
     def _analyze_missing_information(
         self, 
@@ -215,17 +335,40 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         }
         
         # Check vehicle preferences
+        # IMPORTANT: Only mark as missing if NOT already provided in the profile
         if not user_profile:
+            # No profile at all - everything is missing
             missing_info["needs_budget"] = True
             missing_info["needs_passengers"] = True
             missing_info["needs_priorities"] = True
+            missing_info["needs_features"] = True
+            missing_info["needs_commute"] = True
         else:
-            if not user_profile.get("budget_max"):
+            # Profile exists - check each field individually
+            # Only mark as missing if the field is NOT present or is None/empty
+            budget_value = user_profile.get("budget_max")
+            if budget_value is None or budget_value == 0:
                 missing_info["needs_budget"] = True
-            if not user_profile.get("passengers"):
+            
+            passengers_value = user_profile.get("passengers")
+            if passengers_value is None or passengers_value == 0:
                 missing_info["needs_passengers"] = True
-            if not user_profile.get("priorities"):
+            
+            priorities_value = user_profile.get("priorities")
+            if not priorities_value or (isinstance(priorities_value, list) and len(priorities_value) == 0):
                 missing_info["needs_priorities"] = True
+            
+            # Check if features are provided (must be a non-empty list)
+            features_value = user_profile.get("features_wanted")
+            if not features_value or (isinstance(features_value, list) and len(features_value) == 0):
+                missing_info["needs_features"] = True
+            
+            # Check if commute/terrain information is provided
+            # If either terrain OR commute_miles is provided, we have commute info
+            terrain_value = user_profile.get("terrain")
+            commute_miles_value = user_profile.get("commute_miles")
+            if not terrain_value and (commute_miles_value is None or commute_miles_value == 0):
+                missing_info["needs_commute"] = True
         
         # Check financial information
         if not financial_profile:
@@ -248,6 +391,7 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
                 missing_info["needs_down_payment"] = True
         
         # Build suggested questions based on what's missing
+        # IMPORTANT: Only add questions for fields that are ACTUALLY marked as missing
         questions = []
         
         # Handle ambiguous income FIRST (takes priority)
@@ -273,23 +417,52 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         
         # If query seems to be about affordability but missing financial info
         affordability_keywords = ['afford', 'budget', 'payment', 'cost', 'price', 'expensive', 'cheap']
-        if any(keyword in user_message.lower() for keyword in affordability_keywords):
+        is_affordability_query = any(keyword in user_message.lower() for keyword in affordability_keywords)
+        
+        if is_affordability_query:
+            # Only ask about income if it's missing AND not already being clarified
             if missing_info["needs_income"] and not missing_info["needs_income_clarification"]:
                 questions.append("What is your monthly or annual income?")
+            # Only ask about credit if missing
             if missing_info["needs_credit"]:
                 questions.append("What is your credit score range (excellent, good, fair, or a specific number)?")
+            # Only ask about down payment if missing
             if missing_info["needs_down_payment"]:
                 questions.append("How much can you put down as a down payment?")
+        else:
+            # For non-affordability queries, still ask about financial info if completely missing
+            # But prioritize vehicle preferences
+            if missing_info["needs_income"] and not missing_info["needs_income_clarification"]:
+                questions.append("What is your monthly or annual income? (optional, but helps with affordability analysis)")
+            if missing_info["needs_credit"]:
+                questions.append("What is your credit score? (optional, but helps calculate accurate payments)")
         
-        # If query is about finding a car but missing preferences
+        # Vehicle preference questions - ONLY ask if marked as missing
+        # Double-check: don't ask about things that are already in the profile
         if missing_info["needs_passengers"]:
-            questions.append("How many passengers do you need to seat regularly?")
+            # Verify it's actually missing (safety check)
+            if not user_profile or not user_profile.get("passengers"):
+                questions.append("How many passengers do you need to seat regularly?")
         
         if missing_info["needs_budget"]:
-            questions.append("What is your budget range for the vehicle?")
+            # Verify it's actually missing (safety check)
+            if not user_profile or not user_profile.get("budget_max"):
+                questions.append("What is your budget range for the vehicle?")
         
         if missing_info["needs_priorities"]:
-            questions.append("What are your priorities? (fuel efficiency, performance, space, safety, etc.)")
+            # Verify it's actually missing (safety check)
+            if not user_profile or not user_profile.get("priorities"):
+                questions.append("What are your priorities? (fuel efficiency, performance, space, safety, etc.)")
+        
+        if missing_info["needs_commute"]:
+            # Verify it's actually missing (safety check)
+            if not user_profile or (not user_profile.get("terrain") and not user_profile.get("commute_miles")):
+                questions.append("What type of driving will you be doing? (city, highway, off-road, or commute distance)")
+        
+        if missing_info["needs_features"]:
+            # Verify it's actually missing (safety check)
+            if not user_profile or not user_profile.get("features_wanted"):
+                questions.append("Are there any specific features you want? (AWD, hybrid, 3rd row seating, etc.)")
         
         missing_info["suggested_questions"] = questions
         
@@ -610,30 +783,34 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         
         return financial_profile if financial_profile else None
     
-    def _priorities_to_weights(self, priorities: List[str]) -> Dict[str, float]:
+    def _priorities_to_weights(self, priorities: List[str], top_priority: Optional[str] = None) -> Dict[str, float]:
         """
         Convert user priorities to scoring weight adjustments
         
         Strategy:
         - Boost mentioned priorities
+        - Top priority gets even higher weight
         - Reduce unmentioned categories
         - Maintain total weight sum ≈ 1.0
         
         Examples:
         - ["fuel_efficiency"] → fuel_efficiency gets 0.40, others reduced
         - ["fuel_efficiency", "safety"] → both get 0.30 each, others reduced
+        - top_priority="space" → space gets 0.45, others get less
         """
         # Map priority names to scoring categories
         priority_map = {
             'fuel_efficiency': 'fuel_efficiency',
             'safety': 'safety',
-            'space': 'seating',
+            'space': 'seating',  # Space maps to seating category (includes cargo)
             'performance': 'performance',
+            'budget': 'budget',
         }
         
         # Base weights (reduced for non-priorities)
-        base_weight = 0.08
-        priority_weight = 0.35
+        base_weight = 0.06
+        priority_weight = 0.30
+        top_priority_weight = 0.45  # Top priority gets much higher weight
         
         weights = {}
         num_priorities = len(priorities)
@@ -641,14 +818,31 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         if num_priorities == 0:
             return {}
         
-        # Calculate weight per priority
-        weight_per_priority = priority_weight if num_priorities == 1 else priority_weight / num_priorities
-        
-        # Assign high weights to priorities
-        for priority in priorities:
-            category = priority_map.get(priority)
-            if category:
-                weights[category] = weight_per_priority
+        # If there's a top priority, give it extra weight
+        if top_priority and top_priority in priorities:
+            # Top priority gets the highest weight
+            top_category = priority_map.get(top_priority)
+            if top_category:
+                weights[top_category] = top_priority_weight
+            
+            # Other priorities share remaining weight
+            other_priorities = [p for p in priorities if p != top_priority]
+            if other_priorities:
+                remaining_weight = priority_weight
+                weight_per_other = remaining_weight / len(other_priorities)
+                for priority in other_priorities:
+                    category = priority_map.get(priority)
+                    if category:
+                        weights[category] = weight_per_other
+        else:
+            # No top priority - distribute weight evenly
+            weight_per_priority = priority_weight if num_priorities == 1 else priority_weight / num_priorities
+            
+            # Assign high weights to priorities
+            for priority in priorities:
+                category = priority_map.get(priority)
+                if category:
+                    weights[category] = weight_per_priority
         
         # Fill in remaining categories with base weight
         all_categories = ['budget', 'fuel_efficiency', 'seating', 'drivetrain', 
@@ -685,6 +879,19 @@ Available Toyota models include: Camry, Corolla, RAV4, Highlander, 4Runner, Taco
         powertrain = specs.get('powertrain', {})
         capacity = specs.get('capacity', {})
         safety = specs.get('safety', {})
+        environment_fit = specs.get('environment_fit', {})
+        
+        # Get cargo space
+        cargo_volume_l = capacity.get('cargo_volume_l', 0)
+        cargo_volume_cuft = cargo_volume_l * 0.0353 if cargo_volume_l else 0
+        cargo_space_str = car.get('cargo_space', '')
+        if not cargo_space_str and cargo_volume_cuft > 0:
+            cargo_space_str = f"{cargo_volume_cuft:.1f} cu ft"
+        
+        # Get ground clearance
+        ground_clearance = environment_fit.get('ground_clearance_in', 0)
+        
+        ground_clearance_str = f"{ground_clearance:.1f}\"" if ground_clearance else "N/A"
         
         car_info = f"""
 Car: {car.get('year')} {car.get('make')} {car.get('model')} {car.get('trim')}
@@ -694,6 +901,8 @@ MPG: {powertrain.get('mpg_city', 'N/A')} city / {powertrain.get('mpg_hwy', 'N/A'
 Fuel Type: {powertrain.get('fuel_type', 'N/A')}
 Drivetrain: {powertrain.get('drivetrain', 'N/A')}
 Seats: {capacity.get('seats', 'N/A')}
+Cargo Space: {cargo_space_str if cargo_space_str else 'N/A'}
+Ground Clearance: {ground_clearance_str}
 Body Style: {specs.get('body_style', 'N/A')}
 Safety Rating: {safety.get('crash_test_score', 'N/A')}
 Match Reasons: {', '.join(reasons)}
@@ -716,7 +925,7 @@ Financial Analysis:
         
         return car_info
     
-    async def process_message(self, messages: List[ChatMessage]) -> str:
+    async def process_message(self, messages: List[ChatMessage]) -> tuple[str, List[Dict[str, Any]], Optional[str]]:
         """
         Process incoming messages with Nemotron + Catalog integration
         
@@ -730,10 +939,13 @@ Financial Analysis:
             messages: Full chat history
         
         Returns:
-            Agent's response as a string
+            Tuple of (response_text, recommended_car_ids, scoring_method)
+            - response_text: Agent's response as a string
+            - recommended_car_ids: List of car ID strings (e.g., ["camry-le-2018", "rav4-xle-2020"])
+            - scoring_method: "preference_based", "affordability_based", or None
         """
         if not self.client:
-            return "API key not configured. Please set NEMOTRON_API_KEY in .env"
+            return ("API key not configured. Please set NEMOTRON_API_KEY in .env", [], None)
         
         try:
             # Get the latest user message
@@ -747,6 +959,9 @@ Financial Analysis:
             
             catalog_context = ""
             
+            # Initialize recommended_car_ids list to return (just IDs, not full car data)
+            recommended_car_ids_list = []
+            
             # Determine what to show based on available information
             has_vehicle_preferences = user_profile and (
                 user_profile.get("budget_max") or 
@@ -754,16 +969,34 @@ Financial Analysis:
                 user_profile.get("priorities") or
                 user_profile.get("features_wanted")
             )
+            
+            # Check if user has SUBSTANTIAL vehicle preferences (enough to show results)
+            has_substantial_preferences = self._has_substantial_vehicle_preferences(user_profile)
+            
             has_financial_info = financial_profile and (
                 financial_profile.get("annual_income") or 
                 financial_profile.get("monthly_income")
             )
             
-            if has_vehicle_preferences:
-                # User provided vehicle preferences - score by preferences
-                scored_cars = self.catalog.score_cars_for_user(user_profile)
+            # PRIORITY: If user has substantial preferences, show results FIRST
+            # Even without financial info, we can provide meaningful recommendations
+            if has_substantial_preferences:
+                # User provided substantial vehicle preferences - score by preferences
+                # Use estimated base price if budget is total cost
+                scoring_profile = user_profile.copy() if user_profile else {}
+                if scoring_profile.get("budget_is_total_cost") and scoring_profile.get("budget_max_estimated_base"):
+                    # Use estimated base price for scoring, but keep original for context
+                    scoring_profile["budget_max"] = scoring_profile["budget_max_estimated_base"]
+                
+                scored_cars = self.catalog.score_cars_for_user(scoring_profile)
                 # Adjust number of results based on user request
-                cars_to_fetch = num_results if wants_more else 10
+                cars_to_fetch = num_results if wants_more else 8
+                top_cars = scored_cars[:cars_to_fetch]
+                scoring_method = "preference_based"
+            elif has_vehicle_preferences:
+                # User has some preferences but not substantial - still show results
+                scored_cars = self.catalog.score_cars_for_user(user_profile)
+                cars_to_fetch = num_results if wants_more else 8
                 top_cars = scored_cars[:cars_to_fetch]
                 scoring_method = "preference_based"
             elif has_financial_info:
@@ -786,11 +1019,12 @@ Financial Analysis:
             has_ambiguous_income = financial_profile and financial_profile.get("ambiguous_income")
             
             # Query is ambiguous if:
-            # 1. No vehicle preferences AND no clear financial info (no monthly/annual income)
-            # 2. OR we have ambiguous income that needs clarification (even if we have vehicle preferences)
+            # 1. No substantial vehicle preferences AND no clear financial info (no monthly/annual income)
+            # 2. OR we have ambiguous income that needs clarification AND no substantial preferences
+            # BUT: If we have substantial preferences, we're NOT ambiguous - we can show results!
             is_ambiguous_query = (
-                (not has_vehicle_preferences and not has_financial_info) or
-                (has_ambiguous_income and not has_financial_info)
+                (not has_substantial_preferences and not has_financial_info) or
+                (has_ambiguous_income and not has_financial_info and not has_substantial_preferences)
             )
             
             if top_cars:
@@ -824,6 +1058,12 @@ Financial Analysis:
                     # Take enough cars based on requested results (add buffer for filtering)
                     max_cars = max(num_results + 5, 12) if wants_more else 12
                     top_cars_filtered = car_affordability[:max_cars] if len(car_affordability) >= max_cars else car_affordability
+                    
+                    # Collect recommended car IDs for API response
+                    for car_data in top_cars_filtered[:num_results]:
+                        car_details = car_data.get('details')
+                        if car_details and car_details.get('id'):
+                            recommended_car_ids_list.append(car_details['id'])
                 elif has_financial_info:
                     # User has both preferences and financial info
                     car_affordability = []
@@ -846,6 +1086,12 @@ Financial Analysis:
                             })
                     car_affordability.sort(key=lambda x: x['combined_score'], reverse=True)
                     top_cars_filtered = car_affordability[:10]
+                    
+                    # Collect recommended car IDs for API response
+                    for car_data in top_cars_filtered:
+                        car_details = car_data.get('details')
+                        if car_details and car_details.get('id'):
+                            recommended_car_ids_list.append(car_details['id'])
                 else:
                     # Only preferences, no financial info
                     top_cars_filtered = [
@@ -859,17 +1105,48 @@ Financial Analysis:
                         if self._get_car_details(scored_car['id'])
                     ]
                 
+                # Collect recommended car IDs for API response
+                for car_data in top_cars_filtered[:num_results]:
+                    car_details = car_data.get('details')
+                    if car_details and car_details.get('id'):
+                        recommended_car_ids_list.append(car_details['id'])
+                
                 # Build context with car details
                 catalog_context = "\n\n--- CATALOG SEARCH RESULTS ---\n"
+                
+                # Acknowledge user requirements clearly
                 if user_profile:
-                    catalog_context += f"User Vehicle Preferences: {json.dumps(user_profile, indent=2)}\n"
+                    catalog_context += "USER REQUIREMENTS SUMMARY:\n"
+                    if user_profile.get("top_priority"):
+                        catalog_context += f"🎯 TOP PRIORITY: {user_profile['top_priority'].replace('_', ' ').title()}\n"
+                    if user_profile.get("budget_max"):
+                        budget_type = "total cost (including taxes/fees)" if user_profile.get("budget_is_total_cost") else "base price"
+                        if user_profile.get("budget_flexible"):
+                            catalog_context += f"💰 Budget: ~${user_profile['budget_max']:,} ({budget_type}) - FLEXIBLE\n"
+                        else:
+                            catalog_context += f"💰 Budget: ${user_profile['budget_max']:,} ({budget_type})\n"
+                    if user_profile.get("passengers"):
+                        catalog_context += f"👥 Passengers: {user_profile['passengers']}\n"
+                    if user_profile.get("has_children"):
+                        catalog_context += f"👶 Has children/baby (needs baby seat room)\n"
+                    if user_profile.get("priorities"):
+                        catalog_context += f"⭐ Priorities: {', '.join([p.replace('_', ' ').title() for p in user_profile['priorities']])}\n"
+                    if user_profile.get("terrain"):
+                        terrain_desc = user_profile['terrain'].replace('_', ' ').title()
+                        catalog_context += f"🛣️ Terrain: {terrain_desc}\n"
+                    if user_profile.get("needs_ground_clearance"):
+                        catalog_context += f"🚗 Needs: Good ground clearance for potholes/speed bumps\n"
+                    if user_profile.get("features_wanted"):
+                        catalog_context += f"🔧 Features: {', '.join([f.replace('_', ' ').title() for f in user_profile['features_wanted']])}\n"
+                    catalog_context += "\n"
+                
                 if financial_profile:
                     catalog_context += f"Financial Profile: {json.dumps(financial_profile, indent=2)}\n"
                 
                 if scoring_method == "affordability_based":
                     catalog_context += f"\nShowing top affordable Toyota vehicles based on financial profile:\n"
                 else:
-                    catalog_context += f"\nTop {len(top_cars_filtered)} Matches:\n"
+                    catalog_context += f"\nTop {len(top_cars_filtered)} Matches (ranked by how well they match your requirements):\n"
                 
                 for i, car_data in enumerate(top_cars_filtered[:num_results], 1):  # Dynamic number of results
                     car_details = car_data['details']
@@ -927,7 +1204,7 @@ Financial Analysis:
                     else:
                         response_parts.append("\nWould you like to refine your search by mentioning specific needs, or see even more options?\n")
                     
-                    return "".join(response_parts)
+                    return ("".join(response_parts), recommended_car_ids_list, scoring_method)
                 
                 # Provide instructions for Nemotron for other cases
                 if wants_more:
@@ -936,78 +1213,47 @@ Financial Analysis:
                 
                 if has_financial_info:
                     catalog_context += "\nPlease explain these recommendations in a friendly, conversational way. Focus on:"
-                    catalog_context += "\n- Why they match the user's needs (if preferences provided)"
-                    catalog_context += "\n- The financial implications (monthly payment, affordability)"
+                    catalog_context += "\n- Acknowledge the user's requirements (especially top priority if specified)"
+                    catalog_context += "\n- Why each car matches their specific needs"
+                    catalog_context += "\n- The financial implications (monthly payment, affordability, total cost)"
                     catalog_context += "\n- Any warnings about budget or payments"
                     catalog_context += "\n- Practical financial advice"
-                    
-                    # Add context about missing information that could improve recommendations
-                    improvement_suggestions = []
-                    
-                    # Handle ambiguous income (priority - needs clarification)
-                    if missing_info["needs_income_clarification"]:
-                        ambiguous_amount = missing_info["ambiguous_income_amount"]
-                        if ambiguous_amount >= 1000:
-                            amount_str = f"${ambiguous_amount:,}"
-                        else:
-                            amount_str = f"${ambiguous_amount}"
-                        improvement_suggestions.append(f"Clarify if income of {amount_str} is monthly or yearly (critical for accurate payment calculations)")
-                    
-                    if missing_info["needs_credit"]:
-                        improvement_suggestions.append("Credit score (to calculate exact interest rates)")
-                    if missing_info["needs_down_payment"]:
-                        improvement_suggestions.append("Down payment amount (to calculate exact monthly payments)")
-                    if missing_info["needs_priorities"]:
-                        improvement_suggestions.append("Priorities (to better weight scoring: fuel efficiency, performance, safety, etc.)")
-                    if missing_info["needs_passengers"]:
-                        improvement_suggestions.append("Passenger count (to ensure proper seating capacity)")
-                    
-                    if improvement_suggestions and not wants_more:
-                        # If ambiguous income is present, emphasize it
-                        if missing_info["needs_income_clarification"]:
-                            catalog_context += f"\n- IMPORTANT: Ask the user to clarify {improvement_suggestions[0].lower()}"
-                            if len(improvement_suggestions) > 1:
-                                catalog_context += f"\n- Also mention that providing {', '.join(improvement_suggestions[1:])} could help refine the recommendations further"
-                        else:
-                            catalog_context += f"\n- Optionally mention that providing {', '.join(improvement_suggestions)} could help refine the recommendations further"
-                    
-                    if not has_vehicle_preferences and not wants_more:
-                        catalog_context += "\n- Suggest that the user can refine by mentioning family size, commute, or priorities"
-                    elif wants_more:
-                        catalog_context += "\n- Mention they can ask for even more options or refine their search"
                 else:
-                    catalog_context += "\nPlease explain these recommendations in a friendly, conversational way. Focus on why they match the user's needs."
+                    # No financial info but we have substantial preferences - show results first, then ask for financial info
+                    catalog_context += "\nIMPORTANT RESPONSE STRUCTURE:\n"
+                    catalog_context += "1. FIRST: Acknowledge all the user's requirements clearly\n"
+                    catalog_context += "2. SECOND: Show the top car recommendations with explanations of why they match\n"
+                    catalog_context += "3. THIRD: Mention that to calculate exact monthly payments and finalize affordability, you need financial information\n"
+                    catalog_context += "4. FOURTH: Ask for financial info (income, credit score, down payment) to refine recommendations\n\n"
+                    catalog_context += "RESPONSE TONE:\n"
+                    catalog_context += "- Be enthusiastic about the matches you found\n"
+                    catalog_context += "- Emphasize how the cars address their top priority and specific needs\n"
+                    catalog_context += "- Frame financial questions as 'to calculate exact payments' not 'I need more info before I can help'\n"
+                    catalog_context += "- Make it clear the recommendations are based on their preferences, financial info will help refine\n"
                     
-                    # Add context about missing information that could improve recommendations
-                    improvement_suggestions = []
+                    # Add context about what financial info would help
+                    financial_info_needed = []
+                    if missing_info["needs_income"] and not missing_info["needs_income_clarification"]:
+                        financial_info_needed.append("income (to calculate monthly payments)")
+                    if missing_info["needs_credit"]:
+                        financial_info_needed.append("credit score (to determine interest rates)")
+                    if missing_info["needs_down_payment"]:
+                        financial_info_needed.append("down payment amount (to calculate loan amount)")
                     
-                    # Handle ambiguous income (priority - needs clarification)
+                    if financial_info_needed:
+                        catalog_context += f"\nTo calculate exact monthly payments: Ask for {', '.join(financial_info_needed)}\n"
+                    
+                    # Handle ambiguous income
                     if missing_info["needs_income_clarification"]:
                         ambiguous_amount = missing_info["ambiguous_income_amount"]
                         if ambiguous_amount >= 1000:
                             amount_str = f"${ambiguous_amount:,}"
                         else:
                             amount_str = f"${ambiguous_amount}"
-                        improvement_suggestions.append(f"Clarify if income of {amount_str} is monthly or yearly (critical for accurate payment calculations)")
-                    elif not has_financial_info:
-                        improvement_suggestions.append("Financial information (income, credit score, down payment) for affordability analysis")
-                    
-                    if missing_info["needs_priorities"]:
-                        improvement_suggestions.append("Priorities (to better weight scoring: fuel efficiency, performance, safety, etc.)")
-                    if missing_info["needs_passengers"]:
-                        improvement_suggestions.append("Passenger count (to ensure proper seating capacity)")
-                    
-                    if improvement_suggestions and not wants_more:
-                        # If ambiguous income is present, emphasize it
-                        if missing_info["needs_income_clarification"]:
-                            catalog_context += f"\n- IMPORTANT: Ask the user to clarify {improvement_suggestions[0].lower()}"
-                            if len(improvement_suggestions) > 1:
-                                catalog_context += f"\n- Also mention that providing {', '.join(improvement_suggestions[1:])} could help refine the recommendations further"
-                        else:
-                            catalog_context += f"\n- Optionally mention that providing {', '.join(improvement_suggestions)} could help refine the recommendations further"
+                        catalog_context += f"\nIMPORTANT: User mentioned income of {amount_str} but unclear if monthly/yearly. Ask for clarification.\n"
                     
                     if wants_more:
-                        catalog_context += "\nThe user asked for more results, so show the additional options from above."
+                        catalog_context += "\n- The user asked for more results, so show the additional options from above."
             
             # Handle ambiguous queries - provide context to Nemotron about missing information
             if is_ambiguous_query and not catalog_context:
@@ -1016,10 +1262,31 @@ Financial Analysis:
                 clarification_context += "To provide accurate recommendations using the catalog scoring and financial analysis tools, you need more details.\n\n"
                 
                 clarification_context += "MISSING INFORMATION ANALYSIS:\n"
+                
+                # First, acknowledge what information HAS been provided (so Nemotron knows what not to ask about)
+                if user_profile:
+                    provided_info = []
+                    if user_profile.get("budget_max"):
+                        provided_info.append("budget")
+                    if user_profile.get("passengers"):
+                        provided_info.append("passenger count")
+                    if user_profile.get("terrain") or user_profile.get("commute_miles"):
+                        provided_info.append("terrain/commute")
+                    if user_profile.get("features_wanted"):
+                        provided_info.append("features")
+                    if user_profile.get("priorities"):
+                        provided_info.append("priorities")
+                    
+                    if provided_info:
+                        clarification_context += f"✓ Already provided: {', '.join(provided_info)}\n\n"
+                
+                # Then list what's missing
                 if missing_info["needs_budget"]:
                     clarification_context += "- Budget: Not specified. The scoring tool uses budget to filter and rank vehicles.\n"
                 if missing_info["needs_passengers"]:
                     clarification_context += "- Passenger count: Not specified. Needed to match vehicles with appropriate seating capacity.\n"
+                if missing_info["needs_commute"]:
+                    clarification_context += "- Terrain/commute: Not specified. Needed to recommend vehicles suited for your driving conditions (city, highway, off-road).\n"
                 
                 # Handle ambiguous income (takes priority - more specific than general income)
                 if missing_info["needs_income_clarification"]:
@@ -1050,9 +1317,11 @@ Financial Analysis:
                     clarification_context += "- Features: Not specified. Users may want AWD, hybrid, 3rd row seating, etc.\n"
                 
                 clarification_context += "\nYOUR TASK:\n"
-                clarification_context += "Ask friendly, conversational clarifying questions to gather the missing information.\n"
-                clarification_context += "Focus on what's needed to use the catalog scoring and financial analysis tools effectively.\n"
-                clarification_context += "Be helpful and explain why you need this information (e.g., 'To calculate your monthly payment, I need to know...').\n\n"
+                clarification_context += "1. Acknowledge what information the user has already provided (if any)\n"
+                clarification_context += "2. Ask friendly, conversational clarifying questions ONLY about the missing information listed above\n"
+                clarification_context += "3. Do NOT ask about information that has already been provided\n"
+                clarification_context += "4. Focus on what's needed to use the catalog scoring and financial analysis tools effectively\n"
+                clarification_context += "5. Be helpful and explain why you need this information (e.g., 'To calculate your monthly payment, I need to know...')\n\n"
                 
                 if missing_info["suggested_questions"]:
                     clarification_context += "SUGGESTED QUESTIONS (you can adapt these naturally):\n"
@@ -1101,11 +1370,12 @@ Financial Analysis:
                 if chunk.choices[0].delta.content is not None:
                     response_content += chunk.choices[0].delta.content
             
-            return response_content.strip() if response_content.strip() else "I'm here to help you find the perfect Toyota!"
+            response_text = response_content.strip() if response_content.strip() else "I'm here to help you find the perfect Toyota!"
+            return (response_text, recommended_car_ids_list, scoring_method)
             
         except Exception as e:
             print(f"Error calling Nemotron API: {e}")
-            return f"I encountered an error while processing your request. Please try again."
+            return (f"I encountered an error while processing your request. Please try again.", [], None)
 
 # Singleton instance
 ai_agent = AIAgent()
