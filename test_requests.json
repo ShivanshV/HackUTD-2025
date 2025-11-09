@@ -1,0 +1,78 @@
+{
+  "test1_financial_only": {
+    "url": "http://localhost:8000/api/chat",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "I make $5000 per month, have $8k down, credit score 720"
+        }
+      ]
+    }
+  },
+  "test2_complete_info": {
+    "url": "http://localhost:8000/api/chat",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "I make $60k per year, have $5k down, credit 720. Need family car for 5 people."
+        }
+      ]
+    }
+  },
+  "test3_preferences_only": {
+    "url": "http://localhost:8000/api/chat",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "I need a family car for 5 people under $35k"
+        }
+      ]
+    }
+  },
+  "test4_simple_query": {
+    "url": "http://localhost:8000/api/chat",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "I need a car"
+        }
+      ]
+    }
+  },
+  "test5_priority_based": {
+    "url": "http://localhost:8000/api/chat",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "Budget $30k, fuel efficiency is my top priority"
+        }
+      ]
+    }
+  }
+}
+

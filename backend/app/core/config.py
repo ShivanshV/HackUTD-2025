@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     
     # AI Model
     MODEL_TEMPERATURE: float = 0.7
-    MAX_TOKENS: int = 1000
+    MAX_TOKENS: int = 2048  # Increased for detailed financial explanations
     
     # API Keys
     NEMOTRON_API_KEY: str = ""

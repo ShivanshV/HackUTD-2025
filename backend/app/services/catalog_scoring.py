@@ -4,6 +4,8 @@ Catalog & Scoring Service (Person A)
 Pure functions for car data and ranking logic.
 No AI/Nemotron calls - just structured scoring based on user profile.
 Flexible weight system allows Nemotron (Person B) to adjust priorities.
+
+Updated to work with comprehensive nested JSON format.
 """
 
 from typing import List, Dict, Any
@@ -51,31 +53,9 @@ class CatalogScoringService:
         
         Args:
             user_profile: Dictionary with user preferences
-                {
-                    "budget_max": 40000,
-                    "commute_miles": 50,
-                    "passengers": 5,
-                    "terrain": "city" | "highway" | "mixed" | "offroad",
-                    "priorities": ["fuel_efficiency", "safety", "performance"],  # Text list
-                    "features_wanted": ["awd", "apple_carplay", "leather_seats"],
-                    "has_children": true/false,
-                    "weights": {  # Optional: Nemotron can override defaults
-                        "budget": 0.15,
-                        "fuel_efficiency": 0.40,  # User emphasizes MPG
-                        "seating": 0.15,
-                        "performance": 0.10,
-                        ...
-                    }
-                }
         
         Returns:
-            List of scored cars: [
-                {
-                    "id": "rav4-2024-xle",
-                    "score": 0.87,
-                    "reasons": ["awd_match", "good_mpg", "within_budget"]
-                }
-            ]
+            List of scored cars with reasons
         """
         scored_cars = []
         
@@ -94,18 +74,14 @@ class CatalogScoringService:
     
     def _get_weights(self, profile: Dict[str, Any]) -> Dict[str, float]:
         """Get weights from profile or use defaults"""
-        custom_weights = profile.get("weights", {})
+        custom_weights = profile.get("weights") or {}
         weights = self.DEFAULT_WEIGHTS.copy()
-        weights.update(custom_weights)
+        if custom_weights:
+            weights.update(custom_weights)
         return weights
     
     def _score_single_car(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
-        """
-        Score a single car against user profile
-        
-        Returns:
-            (score, reasons) where score is 0.0-1.0 and reasons is list of strings
-        """
+        """Score a single car against user profile"""
         score = 0.0
         reasons = []
         weights = self._get_weights(profile)
@@ -152,29 +128,84 @@ class CatalogScoringService:
         
         return (score, reasons)
     
+    # Helper methods to extract data from new format
+    def _get_price(self, car: Dict[str, Any]) -> float:
+        """Extract price from nested structure"""
+        return car.get("specs", {}).get("pricing", {}).get("base_msrp", 50000)
+    
+    def _get_mpg_city(self, car: Dict[str, Any]) -> float:
+        """Extract city MPG"""
+        return car.get("specs", {}).get("powertrain", {}).get("mpg_city", 25)
+    
+    def _get_mpg_hwy(self, car: Dict[str, Any]) -> float:
+        """Extract highway MPG"""
+        return car.get("specs", {}).get("powertrain", {}).get("mpg_hwy", 30)
+    
+    def _get_seating(self, car: Dict[str, Any]) -> int:
+        """Extract seating capacity"""
+        return car.get("specs", {}).get("capacity", {}).get("seats", 5)
+    
+    def _get_drivetrain(self, car: Dict[str, Any]) -> str:
+        """Extract drivetrain"""
+        return car.get("specs", {}).get("powertrain", {}).get("drivetrain", "FWD")
+    
+    def _get_body_style(self, car: Dict[str, Any]) -> str:
+        """Extract body style"""
+        return car.get("specs", {}).get("body_style", "sedan")
+    
+    def _get_fuel_type(self, car: Dict[str, Any]) -> str:
+        """Extract fuel type"""
+        return car.get("specs", {}).get("powertrain", {}).get("fuel_type", "gasoline")
+    
+    def _get_safety_score(self, car: Dict[str, Any]) -> float:
+        """Extract safety score (0-1 scale)"""
+        return car.get("specs", {}).get("safety", {}).get("crash_test_score", 0.8)
+    
+    def _get_driver_assist_features(self, car: Dict[str, Any]) -> List[str]:
+        """Extract driver assist features"""
+        return car.get("specs", {}).get("safety", {}).get("driver_assist", [])
+    
+    def _is_offroad_capable(self, car: Dict[str, Any]) -> bool:
+        """Check if car is offroad capable"""
+        return car.get("specs", {}).get("environment_fit", {}).get("offroad_capable", False)
+    
+    def _get_ground_clearance(self, car: Dict[str, Any]) -> float:
+        """Get ground clearance in inches"""
+        return car.get("specs", {}).get("environment_fit", {}).get("ground_clearance_in", 5.0)
+    
+    def _get_child_seat_fit(self, car: Dict[str, Any]) -> str:
+        """Get child seat fit rating"""
+        return car.get("specs", {}).get("capacity", {}).get("rear_seat_child_seat_fit", "good")
+    
+    # Scoring methods
     def _score_budget(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
         """Score based on budget"""
         reasons = []
         budget_max = profile.get("budget_max", 50000)
+        price = self._get_price(car)
         
-        if car["price"] <= budget_max:
-            # Cheaper cars get slight bonus
-            ratio = 1.0 - (car["price"] / budget_max) * 0.3
+        if price <= budget_max:
+            ratio = 1.0 - (price / budget_max) * 0.3
             reasons.append("within_budget")
-            if car["price"] <= budget_max * 0.8:
+            if price <= budget_max * 0.8:
                 reasons.append("under_budget")
             return (ratio, reasons)
         else:
-            # Over budget = major penalty
             return (0.2, [])
     
     def _score_fuel_efficiency(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
         """Score based on fuel efficiency"""
         reasons = []
-        avg_mpg = (car["mpg_city"] + car["mpg_highway"]) / 2
+        mpg_city = self._get_mpg_city(car)
+        mpg_hwy = self._get_mpg_hwy(car)
+        avg_mpg = (mpg_city + mpg_hwy) / 2
         commute = profile.get("commute_miles", 0)
         
-        # Long commute = MPG matters more
+        # Check if hybrid/electric
+        fuel_type = self._get_fuel_type(car)
+        if fuel_type in ["hybrid", "electric", "plug_in_hybrid"]:
+            reasons.append("eco_friendly")
+        
         if commute > 30:
             if avg_mpg >= 40:
                 reasons.append("excellent_mpg")
@@ -188,7 +219,6 @@ class CatalogScoringService:
             else:
                 return (0.3, reasons)
         else:
-            # Short commute = MPG less critical
             if avg_mpg >= 30:
                 reasons.append("good_mpg")
             return (0.7, reasons)
@@ -197,24 +227,30 @@ class CatalogScoringService:
         """Score based on seating capacity"""
         reasons = []
         passengers_needed = profile.get("passengers", 5)
+        seats = self._get_seating(car)
         
-        if car["seating"] >= passengers_needed:
+        if seats >= passengers_needed:
             reasons.append("enough_seats")
-            if car["seating"] >= passengers_needed + 2:
+            if seats >= passengers_needed + 2:
                 reasons.append("extra_space")
+            
+            # Bonus for good child seat fit if has children
+            if profile.get("has_children") and self._get_child_seat_fit(car) in ["good", "excellent"]:
+                reasons.append("child_seat_friendly")
+            
             return (1.0, reasons)
         else:
-            # Not enough seats = major penalty
             return (0.2, reasons)
     
     def _score_drivetrain(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
-        """Score based on drivetrain (AWD/4WD)"""
+        """Score based on drivetrain"""
         reasons = []
         features_wanted = profile.get("features_wanted", [])
         terrain = profile.get("terrain", "mixed")
+        drivetrain = self._get_drivetrain(car)
         
         wants_awd = "awd" in features_wanted or terrain == "offroad"
-        has_awd = car["drivetrain"] in ["AWD", "4WD"]
+        has_awd = drivetrain in ["AWD", "4WD"]
         
         if wants_awd and has_awd:
             reasons.append("awd_match")
@@ -222,7 +258,6 @@ class CatalogScoringService:
         elif wants_awd and not has_awd:
             return (0.4, reasons)
         else:
-            # User doesn't need AWD - FWD is fine
             return (0.8, reasons)
     
     def _score_vehicle_type(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
@@ -230,96 +265,106 @@ class CatalogScoringService:
         reasons = []
         has_children = profile.get("has_children", False)
         terrain = profile.get("terrain", "mixed")
+        body_style = self._get_body_style(car)
+        seats = self._get_seating(car)
         
         if has_children:
-            if car["type"] == "suv" or car["seating"] >= 7:
+            if body_style in ["suv", "minivan"] or seats >= 7:
                 reasons.append("family_friendly")
                 return (1.0, reasons)
-            elif car["type"] == "sedan":
+            elif body_style == "sedan":
                 return (0.7, reasons)
             else:
                 return (0.5, reasons)
         else:
-            if terrain == "offroad" and car["type"] == "truck":
-                reasons.append("offroad_capable")
-                return (1.0, reasons)
-            elif car["type"] in ["sedan", "hybrid"]:
+            if terrain == "offroad":
+                if self._is_offroad_capable(car) or body_style == "truck":
+                    reasons.append("offroad_capable")
+                    return (1.0, reasons)
+                elif self._get_ground_clearance(car) >= 8.0:
+                    reasons.append("good_clearance")
+                    return (0.8, reasons)
+                else:
+                    return (0.5, reasons)
+            elif body_style in ["sedan", "hatchback"]:
                 reasons.append("efficient_choice")
                 return (0.9, reasons)
             else:
                 return (0.8, reasons)
     
     def _score_performance(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
-        """Score based on horsepower/performance"""
+        """Score based on performance (using eco_score inversely for performance)"""
         reasons = []
         priorities = profile.get("priorities", [])
         
-        # Check if user cares about performance
         cares_about_performance = "performance" in priorities or "power" in priorities
         
-        hp = car.get("horsepower", 200)
+        # Use fuel economy as inverse indicator of performance
+        # Low MPG often means more powerful engine
+        avg_mpg = (self._get_mpg_city(car) + self._get_mpg_hwy(car)) / 2
         
         if cares_about_performance:
-            if hp >= 275:
+            if avg_mpg < 25:  # Lower MPG = more powerful
                 reasons.append("high_performance")
                 return (1.0, reasons)
-            elif hp >= 225:
+            elif avg_mpg < 30:
                 reasons.append("good_power")
                 return (0.8, reasons)
-            elif hp >= 180:
-                return (0.6, reasons)
             else:
-                return (0.4, reasons)
+                return (0.6, reasons)
         else:
-            # Performance not a priority - any HP is fine
-            if hp >= 200:
-                reasons.append("adequate_power")
+            # Performance not a priority
+            reasons.append("adequate_power")
             return (0.7, reasons)
     
     def _score_features(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
-        """Score based on specific features wanted"""
+        """Score based on features"""
         reasons = []
         features_wanted = profile.get("features_wanted", [])
-        car_features_lower = [f.lower() for f in car.get("features", [])]
         
         if not features_wanted:
-            return (0.7, reasons)  # No specific features requested
+            return (0.7, reasons)
         
-        # Normalize feature names for matching
+        driver_assist = self._get_driver_assist_features(car)
+        driver_assist_lower = [f.lower().replace("_", " ") for f in driver_assist]
+        
+        # Feature matching
         feature_map = {
-            "apple_carplay": "apple carplay",
-            "android_auto": "android auto",
-            "leather_seats": "leather seats",
-            "panoramic_sunroof": "panoramic sunroof",
-            "sunroof": "sunroof",
-            "blind_spot_monitor": "blind spot monitor",
-            "adaptive_cruise": "adaptive cruise control",
-            "lane_departure": "lane departure alert",
-            "3_row_seating": "3-row seating",
-            "hybrid": "hybrid",
-            "power_liftgate": "power liftgate",
-            "wireless_charging": "wireless charging",
+            "apple_carplay": ["apple", "carplay"],
+            "android_auto": ["android", "auto"],
+            "leather_seats": ["leather"],
+            "panoramic_sunroof": ["panoramic", "sunroof"],
+            "sunroof": ["sunroof"],
+            "blind_spot_monitor": ["blind spot", "blind_spot"],
+            "adaptive_cruise": ["adaptive cruise", "adaptive_cruise_control"],
+            "lane_departure": ["lane", "lane_keep"],
+            "3_row_seating": ["3_row", "three_row"],
+            "hybrid": ["hybrid"],
         }
         
         matches = 0
         for wanted in features_wanted:
             wanted_lower = wanted.lower()
-            feature_to_match = feature_map.get(wanted_lower, wanted_lower)
             
-            # Check if feature exists in car
-            if any(feature_to_match in cf for cf in car_features_lower):
+            # Check if it's a known feature
+            search_terms = feature_map.get(wanted_lower, [wanted_lower])
+            
+            # Check against driver assist features
+            for term in search_terms:
+                if any(term in feature for feature in driver_assist_lower):
+                    matches += 1
+                    if "carplay" in wanted_lower or "apple" in wanted_lower:
+                        reasons.append("has_carplay")
+                    elif "cruise" in wanted_lower:
+                        reasons.append("has_adaptive_cruise")
+                    elif "lane" in wanted_lower:
+                        reasons.append("has_lane_assist")
+                    break
+            
+            # Check fuel type for hybrid
+            if "hybrid" in wanted_lower and self._get_fuel_type(car) in ["hybrid", "plug_in_hybrid"]:
                 matches += 1
-                # Add specific reason codes
-                if "carplay" in wanted_lower:
-                    reasons.append("has_carplay")
-                elif "leather" in wanted_lower:
-                    reasons.append("has_leather")
-                elif "sunroof" in wanted_lower:
-                    reasons.append("has_sunroof")
-                elif "hybrid" in wanted_lower:
-                    reasons.append("eco_friendly")
-                elif "3_row" in wanted_lower or "3-row" in wanted_lower:
-                    reasons.append("three_row_seating")
+                reasons.append("eco_friendly")
         
         if len(features_wanted) > 0:
             match_ratio = matches / len(features_wanted)
@@ -330,20 +375,28 @@ class CatalogScoringService:
         return (0.7, reasons)
     
     def _score_safety(self, car: Dict[str, Any], profile: Dict[str, Any]) -> tuple[float, List[str]]:
-        """Score based on safety rating and features"""
+        """Score based on safety"""
         reasons = []
-        safety_rating = car.get("safety_rating", 4.0)
+        safety_score = self._get_safety_score(car)  # 0-1 scale
+        driver_assist = self._get_driver_assist_features(car)
         
-        if safety_rating >= 5.0:
+        # Convert 0-1 scale to ratings
+        if safety_score >= 0.9:
             reasons.append("top_safety")
-            return (1.0, reasons)
-        elif safety_rating >= 4.5:
+            score = 1.0
+        elif safety_score >= 0.8:
             reasons.append("excellent_safety")
-            return (0.9, reasons)
-        elif safety_rating >= 4.0:
-            return (0.7, reasons)
+            score = 0.9
+        elif safety_score >= 0.7:
+            score = 0.7
         else:
-            return (0.5, reasons)
+            score = 0.5
+        
+        # Bonus for comprehensive driver assist
+        if len(driver_assist) >= 5:
+            reasons.append("advanced_safety_features")
+        
+        return (score, reasons)
 
 
 # Singleton instance
