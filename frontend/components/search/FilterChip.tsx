@@ -21,16 +21,20 @@ const FilterChip: React.FC<FilterChipProps> = ({
     >
       <span className={styles.icon}>🔄</span>
       <span className={styles.label}>{label}</span>
-      <button 
-        className={styles.closeButton}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onClick) onClick();
-        }}
-        aria-label="Remove filter"
-      >
-        ×
-      </button>
+      {active && (
+        <span 
+          className={styles.closeButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onClick) onClick();
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Remove filter"
+        >
+          ×
+        </span>
+      )}
     </button>
   );
 };

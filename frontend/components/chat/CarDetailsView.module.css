@@ -63,6 +63,10 @@
   opacity: 0.3;
 }
 
+.hidden {
+  display: none;
+}
+
 .heroContent {
   text-align: center;
 }
@@ -358,48 +362,116 @@
   font-weight: 700;
 }
 
-/* Payment Options */
-.paymentOptions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
-  max-width: 600px;
+/* Payments Wrapper */
+.paymentsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-.paymentCard {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border: 2px solid #e5e5e5;
+.paymentCardsRow {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.comparisonChartBox {
+  background: white;
   border-radius: 16px;
-  padding: 32px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.chartSubtitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
   text-align: center;
-  transition: all 0.2s ease;
+}
+
+.paymentCard {
+  background: linear-gradient(135deg, #EB0A1E 0%, #C40818 100%);
+  border-radius: 20px;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  color: white;
+  box-shadow: 0 8px 32px rgba(235, 10, 30, 0.35);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-width: 280px;
+  max-width: 350px;
+}
+
+.paymentCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .paymentCard:hover {
-  border-color: #EB0A1E;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(235, 10, 30, 0.5);
+}
+
+.paymentCard:hover::before {
+  opacity: 1;
 }
 
 .paymentType {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 12px;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  margin-bottom: 0.75rem;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .paymentAmount {
-  font-size: 36px;
-  font-weight: 700;
-  color: #EB0A1E;
-  margin-bottom: 8px;
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
 .paymentTerms {
-  font-size: 13px;
-  color: #999;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.paymentTotal {
+  margin-top: 1rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
 /* Footer */
@@ -437,6 +509,20 @@
     flex-direction: column;
   }
 
+  .paymentOptions {
+    flex-direction: column;
+  }
+
+  .paymentCardsRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .paymentCard {
+    max-width: 100%;
+    min-width: 280px;
+  }
+
   .ctaPrimary, .ctaSecondary {
     width: 100%;
   }
@@ -449,5 +535,146 @@
   .scoreLabel {
     min-width: auto;
   }
+}
+
+/* Charts Container */
+.chartsContainer {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.chartBox {
+  flex: 1;
+  min-width: 350px;
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.chartTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.chartSummary {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.summaryItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.summaryTotal {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid #e5e7eb;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #EB0A1E;
+  text-align: center;
+}
+
+.chartNote {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+  border-radius: 8px;
+  border-left: 4px solid #EB0A1E;
+}
+
+.chartNote strong {
+  display: block;
+  font-size: 1.2rem;
+  color: #EB0A1E;
+  margin-bottom: 0.5rem;
+}
+
+.chartNote p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Dealer Inventory */
+.dealerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dealerCard {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.dealerCard:hover {
+  border-color: #EB0A1E;
+  box-shadow: 0 6px 20px rgba(235, 10, 30, 0.15);
+  transform: translateY(-3px);
+}
+
+.dealerName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dealerName::before {
+  content: '📍';
+  font-size: 0.9rem;
+}
+
+.dealerStock {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.dealerPrice {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #EB0A1E;
+  background: linear-gradient(135deg, #EB0A1E 0%, #C40818 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 

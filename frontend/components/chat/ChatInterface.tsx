@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ChatMessage } from '@/lib/types/chat'
+import { ChatMessage, Vehicle } from '@/lib/types/chat'
 import { sendChatMessage } from '@/lib/api/chat'
+import { getVehicleById } from '@/lib/api/vehicles'
 import ChatMessageBubble from './ChatMessageBubble'
 import ChatInput from './ChatInput'
 import CarSuggestions from './CarSuggestions'
@@ -15,6 +16,8 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({ onNewSearch }: ChatInterfaceProps = {}) {
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
+  const [selectedCar, setSelectedCar] = useState<Vehicle | null>(null);
+  const [loadingCarDetails, setLoadingCarDetails] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     {
       role: 'agent',
@@ -33,6 +36,25 @@ export default function ChatInterface({ onNewSearch }: ChatInterfaceProps = {}) 
   useEffect(() => {
     scrollToBottom()
   }, [chatHistory])
+
+  // Fetch car details when a car is selected
+  useEffect(() => {
+    if (selectedCarId) {
+      setLoadingCarDetails(true);
+      getVehicleById(selectedCarId)
+        .then(vehicle => {
+          setSelectedCar(vehicle);
+        })
+        .catch(err => {
+          console.error('Failed to load vehicle details:', err);
+          alert('Failed to load vehicle details. Please try again.');
+          setSelectedCarId(null);
+        })
+        .finally(() => {
+          setLoadingCarDetails(false);
+        });
+    }
+  }, [selectedCarId]);
 
   const handleSendMessage = async (message: string) => {
     if (!message.trim() || isLoading) return
@@ -79,82 +101,27 @@ export default function ChatInterface({ onNewSearch }: ChatInterfaceProps = {}) 
     'Luxury sedans with leather interiors'
   ]
 
-  // Sample car data with full details
-  const sampleCarDetails = {
-    id: 'rav4-hybrid-xle-2025',
-    make: 'Toyota',
-    model: 'RAV4 Hybrid',
-    trim: 'XLE',
-    year: 2025,
-    image: '/cars/camry-2024.jpg',
-    specs: {
-      body_style: 'SUV',
-      size_class: 'compact_suv',
-      pricing: {
-        base_msrp: 33000,
-        msrp_range: [33000, 36000],
-        est_lease_monthly: 380,
-        est_loan_monthly: 420
-      },
-      powertrain: {
-        fuel_type: 'hybrid',
-        drivetrain: 'AWD',
-        mpg_city: 41,
-        mpg_hwy: 38,
-        mpg_combined: 40,
-        est_range_miles: 580
-      },
-      capacity: {
-        seats: 5,
-        rear_seat_child_seat_fit: 'good',
-        isofix_latch_points: true,
-        cargo_volume_l: 1067,
-        fold_flat_rear_seats: true
-      },
-      dimensions: {
-        length_mm: 4600,
-        width_mm: 1855,
-        height_mm: 1685,
-        turning_radius_m: 5.5
-      },
-      comfort: {
-        ride_comfort_score: 0.8,
-        noise_level_score: 0.7
-      },
-      parking_tags: {
-        city_friendly: true,
-        tight_space_ok: false
-      },
-      environment_fit: {
-        ground_clearance_in: 8.1,
-        offroad_capable: false,
-        rough_road_score: 0.8,
-        snow_rain_score: 0.85
-      },
-      safety: {
-        has_tss: true,
-        airbags: 8,
-        driver_assist: [
-          'lane_keep_assist',
-          'adaptive_cruise_control',
-          'blind_spot_monitor'
-        ],
-        crash_test_score: 0.95
-      }
-    },
-    derived_scores: {
-      eco_score: 0.85,
-      family_friendly_score: 0.9,
-      city_commute_score: 0.75,
-      road_trip_score: 0.9
-    }
-  };
+  // Show loading state while fetching car details
+  if (loadingCarDetails) {
+    return (
+      <div className={styles.chatLayout}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Loading vehicle details...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (selectedCarId) {
+  // Show car details if a car is selected and loaded
+  if (selectedCarId && selectedCar) {
     return (
       <CarDetailsView 
-        car={sampleCarDetails} 
-        onBack={() => setSelectedCarId(null)}
+        car={selectedCar} 
+        onBack={() => {
+          setSelectedCarId(null);
+          setSelectedCar(null);
+        }}
         userPreferences={{
           hasFamily: true,
           longCommute: true,

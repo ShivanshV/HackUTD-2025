@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ChatMessage, ChatRequest, ChatResponse } from '@/lib/types/chat';
 
-const API_BASE_URL = process.env.BACKEND_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8000';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
